@@ -25,7 +25,8 @@ capacitor.config.js   server URL, user agent, shell settings
 www/                  bundled pages (never the app itself; see the config)
 android/              Android Studio project
 ios/                  Xcode project (Swift Package Manager, no CocoaPods)
-scripts/              version sync
+resources/            icon artwork and store listing images
+scripts/              version sync, icon and splash generator
 ```
 
 ## Setting up on Windows (Android)
@@ -60,6 +61,20 @@ or, without the IDE: `cd android && gradlew.bat assembleDebug`.
 iOS builds need macOS with Xcode. There is no Mac here, so they run in the
 cloud: see the CI section (added in a later step). On a Mac it is
 `npm ci && npm run sync && npm run ios`.
+
+## Icons and splash
+
+Every icon and splash image is drawn from `resources/icon-source.png`, the
+website's favicon (a navy ticket with a white "b"), by `npm run assets`:
+
+- app icons: the ticket in brand navy #083882 on white, inside the area each
+  platform never crops (Android adaptive and themed icons, the iOS icon);
+- splash: the ticket in white on navy, shown natively until the website has
+  drawn its first page (at most 8 seconds);
+- Android notification icon, and the Play Store icon and feature graphic in
+  `resources/store/`.
+
+The output is committed. Run it again only when the artwork changes.
 
 ## Versions
 

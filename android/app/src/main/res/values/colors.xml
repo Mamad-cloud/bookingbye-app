@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BookingBye navy, as on the website (theme colour #083882). -->
+    <color name="brand_navy">#083882</color>
+</resources>

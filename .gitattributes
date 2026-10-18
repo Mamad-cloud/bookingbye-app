@@ -1,0 +1,6 @@
+# One line ending for everyone: the iOS build runs on macOS, and gradlew
+# fails with Windows line endings.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.jar binary
