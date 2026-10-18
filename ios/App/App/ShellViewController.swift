@@ -10,11 +10,15 @@ class ShellViewController: CAPBridgeViewController {
 
     private var splash: UIView?
     private var loadingObservation: NSKeyValueObservation?
+    /// Held here: a webview keeps its navigation delegate weakly.
+    private var failureWatcher: NavigationFailureWatcher?
 
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(AppShellPlugin())
         admitOnlyTheWebsite()
+        runShellScript()
+        showOfflinePageOnFailure()
     }
 
     override func viewDidLoad() {
@@ -37,6 +41,35 @@ class ShellViewController: CAPBridgeViewController {
         let handler = bridge.webViewDelegationHandler
         handler.contentController.removeScriptMessageHandler(forName: BridgeOriginGuard.name)
         handler.contentController.add(BridgeOriginGuard(handler: handler, origin: bridge.config.serverURL), name: BridgeOriginGuard.name)
+    }
+
+    // MARK: - Shell script and offline page
+
+    /// Runs www/shell.js (copied to public/ by cap sync) in every page of the
+    /// website, after Capacitor's own script. See that file for what it does.
+    private func runShellScript() {
+        guard let bridge = bridge,
+              let file = Bundle.main.url(forResource: "shell", withExtension: "js", subdirectory: "public"),
+              let script = try? String(contentsOf: file, encoding: .utf8),
+              let host = bridge.config.serverURL.host else {
+            return
+        }
+        // WKUserScript cannot be limited to one site, so the script checks.
+        let origin = "https://\(host)"
+        let source = "if (location.origin === \"\(origin)\") {\n\(script)\n}"
+        bridge.webView?.configuration.userContentController.addUserScript(
+            WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        )
+    }
+
+    private func showOfflinePageOnFailure() {
+        guard let webView = webView, let capacitor = webView.navigationDelegate, let bridge = bridge else { return }
+        let offlinePage = OfflinePage(serverURL: bridge.config.serverURL)
+        let watcher = NavigationFailureWatcher(capacitor: capacitor) { webView, error in
+            offlinePage.show(in: webView, after: error)
+        }
+        failureWatcher = watcher
+        webView.navigationDelegate = watcher
     }
 
     // MARK: - Splash

@@ -65,7 +65,9 @@ public class MainActivity extends BridgeActivity {
         // into, and takes messages from, the server.url origin alone, since
         // capacitor.config.js has no allowNavigation.
         WebView webView = bridge.getWebView();
-        bridge.setWebViewClient(new ShellWebViewClient(bridge, navigation()));
+        ShellPages pages = new ShellPages(this, bridge.getServerUrl());
+        bridge.setWebViewClient(new ShellWebViewClient(bridge, navigation(), pages));
+        pages.installScript(bridge);
         webView.getSettings().setSupportMultipleWindows(true);
         webView.setWebChromeClient(new ShellChromeClient(bridge, navigation()));
         getApplication().registerActivityLifecycleCallbacks(browserWatcher);

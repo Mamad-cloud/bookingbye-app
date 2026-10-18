@@ -22,11 +22,12 @@ the app.
 
 ```
 capacitor.config.js   server URL, user agent, shell settings
-www/                  bundled pages (never the app itself; see the config)
+www/                  bundled offline page and shell script (cap sync copies them)
 android/              Android Studio project
 ios/                  Xcode project (Swift Package Manager, no CocoaPods)
 resources/            icon artwork and store listing images
-scripts/              version sync, icon and splash generator
+scripts/              version sync, icon and splash generator, Xcode project helpers
+docs/PROGRESS.md      build record: steps, decisions, what is left
 ```
 
 ## Setting up on Windows (Android)
@@ -118,6 +119,18 @@ Then check:
   `bookingbye.com: verified` (re-run with `pm verify-app-links --re-verify`);
 - iOS: a bookingbye.com link tapped in Notes opens the app. Apple caches the
   file through its CDN, so a change can take a day to arrive.
+
+## Offline, and the shell's script
+
+When a page can't load for want of a connection, the app shows its own
+offline page (`www/offline.html`, adapted from the website's), in the site's
+language and theme. "Try again" reloads the page that failed, and it does so
+by itself when the phone comes back online. An HTTP error page (a 404, a 500)
+is the site's and is shown as it is.
+
+`www/shell.js` runs in every bookingbye.com page inside the app. Today it
+keeps the status bar icons readable: dark on the site's light theme, light on
+its dark one.
 
 ## Permissions
 

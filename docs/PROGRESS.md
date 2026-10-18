@@ -16,6 +16,9 @@ picking the work up starts here. Update it with every step.
   change is checked by reading it against the Capacitor source in
   `node_modules/@capacitor/{android,ios}`. The first real build happens after
   Android Studio is installed (README) or in CI (step 8).
+- Backslashes typed into shell heredocs reach the file halved (`\` becomes
+  `\`): write Java/Swift strings with escapes through the editor, then grep
+  the sources for them.
 - The Xcode project is edited without Xcode with `scripts/xcode-add-file.py`
   and `scripts/xcode-add-localized.py`. Check braces and parentheses still
   balance in `project.pbxproj` afterwards.
@@ -68,8 +71,8 @@ picking the work up starts here. Update it with every step.
 | 3 | Navigation: what opens in the app, what goes to the phone; iOS bridge limited to the site | done | `1784a45` |
 | 4 | `bookingbye://auth` sign-in return; App Links / Universal Links | done | `ba326ba` |
 | 5 | File uploads with camera, location, permission texts | done | see git log |
-| 6 | Offline screen; status bar following the site's dark mode | **next** | |
-| 7 | Push notifications (FCM) | to do | |
+| 6 | Offline screen; status bar following the site's dark mode | done | see git log |
+| 7 | Push notifications (FCM) | **next** | |
 | 8 | CI (Codemagic + GitHub Actions), signing, store checklist | to do | |
 
 ### Done, in short
@@ -96,7 +99,7 @@ picking the work up starts here. Update it with every step.
 - Done as described. The visa uploader accepts image/jpeg, image/png and
   application/pdf (frontend `DEFAULT_ACCEPTED`), so a camera photo (JPEG) fits.
 
-### Step 6: offline screen, status bar (to do)
+### Step 6: offline screen, status bar (done)
 
 - `www/offline.html`, self-contained, in en/ar/ckb (ar and ckb right-to-left;
   pick by `navigator.language`, or the site's locale cookie when readable),
@@ -114,6 +117,13 @@ picking the work up starts here. Update it with every step.
   `WebViewCompat.addDocumentStartJavaScript` for the server origin; iOS
   `WKUserScript` checking `location.origin`) that watches `html.dark` and
   calls `Capacitor.Plugins.SystemBars.setStyle({ style: dark ? "DARK" : "LIGHT" })`.
+- Done as: `www/offline.html` (the website's own offline page, adapted:
+  retries the failed URL, says "can't reach" when online), `www/shell.js`;
+  Android `ShellPages.java` (+ `androidx.webkit` dependency), iOS
+  `OfflinePage.swift` with `NavigationFailureWatcher` (stands in as the
+  navigation delegate, forwards everything to Capacitor's). Connection errors
+  only: Android HOST_LOOKUP/CONNECT/TIMEOUT/IO; iOS NSURLError
+  not-connected/lost/host/DNS/timeout/roaming/data-not-allowed.
 
 ### Step 7: push notifications (to do)
 

@@ -22,6 +22,7 @@
 		60EC8D72AACA7D0B13237AE6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F0A91D7F2761031F796F562D /* Localizable.strings */; };
 		CB0DA2125940D456CFD6928C /* IncomingLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 858FE165CB0DA2125940D456 /* IncomingLinks.swift */; };
 		2D2A88D1B17D7F1A3F7CF5CD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 83A8647C0DA43ADAB5CEBA4C /* InfoPlist.strings */; };
+		9C94E12D538D637FFF2B2BD0 /* OfflinePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C998DF99C94E12D538D637F /* OfflinePage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 		23D4FD8857028CDDE19D05E5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AFFB84645746FBF36D114770 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		043ED5DE9FD52EA2CB63C00D /* ckb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ckb; path = ckb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9C998DF99C94E12D538D637F /* OfflinePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflinePage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +83,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				9C998DF99C94E12D538D637F /* OfflinePage.swift */,
 				83A8647C0DA43ADAB5CEBA4C /* InfoPlist.strings */,
 				858FE165CB0DA2125940D456 /* IncomingLinks.swift */,
 				E17A11ED00000000000000E1 /* App.entitlements */,
@@ -186,6 +189,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C94E12D538D637FFF2B2BD0 /* OfflinePage.swift in Sources */,
 				CB0DA2125940D456CFD6928C /* IncomingLinks.swift in Sources */,
 				B1C922E4D3C93207503F9767 /* AppShellPlugin.swift in Sources */,
 				244A78B89F3B7293D635D824 /* Navigation.swift in Sources */,

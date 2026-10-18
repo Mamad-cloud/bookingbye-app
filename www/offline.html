@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>BookingBye</title>
+<!--
+  The app's offline page: shown in the webview, in place of a page that could
+  not be loaded because the phone has no connection or bookingbye.com cannot
+  be reached (OfflinePage.java, OfflinePage.swift). Loaded with no network,
+  as the page's text, at the address https://bookingbye.com/, so it can read
+  the site's language cookie and theme and go back to the site, but nothing
+  else: no external files, no fonts. Copied from the website's
+  public/offline.html (its service worker's offline page) with these changes:
+  "Try again" loads the page that failed, whose address the app writes in
+  place of the FAILED_URL placeholder below; and when the phone is online but the
+  site does not answer, it says so instead of "You're offline".
+-->
+<style>
+  :root { --bg: #ffffff; --ink: #171717; --muted: #525252; --line: #e5e5e5; --brand: #083882; --inv: #ffffff; --card: #f8fafc; }
+  html.dark { --bg: #171717; --ink: #f5f5f5; --muted: #a3a3a3; --line: #262626; --brand: #ffffff; --inv: #000000; --card: #1f1f1f; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; align-items: center; justify-content: center; min-height: 100vh;
+    padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  }
+  html[dir="rtl"] body { font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, system-ui, sans-serif; }
+  main { width: 100%; max-width: 420px; text-align: center; }
+  .logo { width: 168px; height: auto; color: var(--brand); }
+  .inv { color: var(--inv); }
+  .mark { margin: 36px auto 20px; width: 64px; height: 64px; border-radius: 9999px; background: var(--card); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  h1 { margin: 0 0 10px; font-size: 22px; line-height: 1.3; }
+  p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+  button {
+    margin-top: 28px; width: 100%; height: 52px; border: 0; border-radius: 9999px; cursor: pointer;
+    background: #083882; color: #ffffff; font: inherit; font-size: 16px; font-weight: 600;
+  }
+  button:active { background: #052555; }
+  button:focus-visible { outline: 3px solid rgba(8, 56, 130, 0.35); outline-offset: 3px; }
+  .note { margin-top: 14px; font-size: 13px; }
+</style>
+<script>
+  // Before first paint, so the page never flashes the wrong language or theme.
+  (function () {
+    var root = document.documentElement;
+    try { if (localStorage.getItem("theme") === "dark") root.classList.add("dark"); } catch (e) {}
+    var match = document.cookie.match(/(?:^|;\s*)bb_locale=([^;]+)/);
+    var locale = match ? decodeURIComponent(match[1]) : "";
+    if (!/^(en|ar|ckb)$/.test(locale)) {
+      var nav = (navigator.language || "en").toLowerCase();
+      locale = /^(ckb|ku)/.test(nav) ? "ckb" : /^ar/.test(nav) ? "ar" : "en";
+    }
+    root.lang = locale;
+    root.dir = locale === "en" ? "ltr" : "rtl";
+    if (root.classList.contains("dark")) {
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", "#171717");
+    }
+  })();
+</script>
+</head>
+<body>
+<main>
+  <svg aria-hidden="true" class="logo" viewBox="0 0 427 135" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" > <path d="M95.5954 60.2537C94.9084 56.4854 93.2994 54.471 91.3649 51.7272C96.8248 46.9517 106.895 47.9068 112.481 52.1613C121.557 59.0554 121.141 73.191 111.849 79.7725C102.556 86.354 87.4237 82.1168 84.1333 71.0203C82.7593 66.4358 84.4949 62.1639 79.5412 59.2117C72.6169 55.0961 64.0474 62.8238 68.7841 69.9262C71.5322 74.0592 76.8655 74.476 80.7344 71.5239C80.7706 71.4891 80.8248 71.5239 80.8248 71.5586C80.8248 72.9131 85.2903 79.5467 85.5615 79.5988C85.9412 79.6683 81.2949 82.1168 80.3186 82.3599C70.7186 84.8258 60.4858 79.5641 57.9909 70.2562C53.1638 52.335 76.9197 40.4223 89.5028 55.0093C93.2271 59.3159 92.5039 62.3896 93.5163 67.3735C94.6372 72.9305 101.724 75.2748 106.389 71.5933C114.705 65.0465 103.351 52.8386 95.5954 60.2016V60.2537Z" fill="currentColor"/> <path d="M233.449 82.2731C218.063 86.6319 205.155 71.4544 212.278 57.6141C219.401 43.7738 244.206 47.1948 246.014 62.9453C246.719 69.058 246.791 83.315 243.501 88.3858C235.491 100.802 216.454 98.5793 211.32 85.1732H223.234C223.36 85.1732 224.572 86.2498 225.313 86.5103C230.285 88.2816 235.889 85.069 236.468 79.9809C236.902 76.0736 236.938 64.6819 234.913 61.5213C232.653 58.0135 227.175 57.1452 223.686 59.4028C217.955 63.1363 219.853 71.6628 226.488 73.3299C229.417 74.0592 230.899 72.8263 233.43 71.8712V82.2557L233.449 82.2731Z" fill="currentColor"/> <path d="M133.308 39.0678V59.8369L142.42 50.0775L154.551 50.2859L142.981 63.3621L157.155 83.1067H145.223L133.308 67.7382V82.4815L133.29 83.1067H132.658H122.913V39.0678H133.308Z" fill="currentColor"/> <path d="M27.9797 39.0678V66.7136C27.9797 66.7136 28.0158 67.3041 28.0881 67.4951C28.1604 67.6861 28.2689 67.9119 28.3774 68.1723C28.4859 68.3807 28.9379 69.3185 29.0463 69.5268C29.2271 69.8568 29.3717 70.1173 29.4621 70.2388C32.5898 74.5281 39.0079 74.6497 42.2621 70.4298C47.8305 63.2232 38.4294 54.2973 30.9989 59.8369V49.6607C38.3932 46.205 48.1921 50.9458 51.826 57.5446C60.3051 72.9478 42.7864 89.2714 26.8045 80.6929C25.0147 79.7378 22.8814 77.7581 21.1638 75.5179C19.4463 73.2778 18.1808 70.8466 18.0181 68.8149C18.0181 68.6586 18 68.5023 18 68.3634V39.0678H27.9616H27.9797Z" fill="currentColor"/> <path d="M175.36 62.5459C176.608 51.241 189.516 44.9199 199.767 50.7721C202.425 52.2829 206.294 56.2422 206.999 60.462V83.1067H197.453V62.9453C197.453 60.6878 194 58.1872 191.595 58.1351C188.992 58.083 185.304 60.462 185.304 62.9453V83.1067H175.342C175.867 76.5425 174.637 68.9885 175.342 62.5459H175.36Z" fill="currentColor"/> <path d="M170.154 50.2859V83.1067H160.192V50.2859C163.175 52.9428 167.207 53.0644 170.154 50.2859Z" fill="currentColor"/> <path d="M164.404 39.9881C169.756 38.9983 173.137 46.396 167.496 48.7924C160.897 51.6057 157.39 41.2905 164.404 39.9881Z" fill="currentColor"/> <path d="M259.681 101.393C258.126 100.299 253.155 96.6518 252.558 96.1482L256.879 90.7996C256.879 90.0876 252.468 86.6145 252.088 86.4235L256.789 81.1617L252.54 76.612L256.807 71.3329L252.576 66.7831L256.861 61.7124L252.576 57.0584L256.789 52.0745L252.54 47.2122L256.825 42.2283L252.558 37.6612L258.163 32.2084L383.903 32.1737L384.3 37.4007H386.651L386.904 32H404.459C405.363 32 406.664 33.7886 406.809 34.7264C407.641 39.8145 406.248 46.6738 406.845 51.953C388.061 53.1338 388.079 79.5294 406.845 80.6234C406.14 84.357 407.966 97.8673 406.357 100.316C406.158 100.611 405.128 101.393 404.893 101.393H386.904V95.5751H384.3V101.393H259.663H259.681ZM275.067 38.2342H264.671V67.113C264.671 72.4442 270.239 78.6264 275.067 80.8318C291.32 88.2816 308.911 72.6874 300.594 57.18C296.436 49.4176 286.782 46.2744 278.104 48.202V59.0033C282.262 56.7806 288.174 56.7979 290.868 61.1046C295.785 69.0232 284.956 76.6814 278.14 71.2287C277.182 70.4646 275.067 66.9741 275.067 65.8627V38.2342ZM386.904 41.1343H384.3V48.202H386.904V41.1343ZM314.081 47.7852H302.384L317.119 79.2168C316.703 83.4887 313.232 86.4235 308.893 86.8576V96.4086C315.799 96.7038 322.036 92.7619 325.525 87.2223L340.965 47.8026H329.702L322.542 66.0885L314.081 47.8026V47.7852ZM377.792 67.7382V61.7124C377.792 58.1698 372.368 52.1613 369.277 50.3553C352.12 40.4049 331.672 59.1249 343.369 75.188C351.686 86.6145 370.596 84.7217 376.49 72.0969C372.459 71.9927 368.156 71.5412 364.124 71.8712C362.714 71.9927 361.792 72.5484 360.635 72.6874C349.39 74.0071 347.003 60.2189 356.784 57.7878C360.382 56.9021 364.558 58.1177 366.077 61.504H353.946V67.7382H377.792ZM386.904 51.953H384.3V59.4375H386.904V51.953ZM386.904 62.7543H384.3V70.2388H386.904V62.7543ZM386.904 73.9724H384.3V81.0402H386.904V73.9724ZM386.904 84.7737H384.3V91.8415H386.904V84.7737Z" fill="currentColor"/> <path class="inv" d="M275.067 38.2342V65.8627C275.067 66.9741 277.164 70.4646 278.14 71.2287C284.956 76.6988 295.785 69.0406 290.868 61.1046C288.192 56.7806 282.28 56.7806 278.104 59.0034V48.202C286.764 46.2745 296.436 49.4176 300.594 57.18C308.911 72.6874 291.32 88.2642 275.067 80.8318C270.239 78.6264 264.671 72.4443 264.671 67.1131V38.2342H275.067Z" fill="currentColor"/> <path class="inv" d="M377.792 67.7382H353.946V61.504H366.077C364.558 58.1177 360.382 56.9021 356.784 57.7878C347.003 60.2189 349.39 74.0072 360.635 72.6874C361.792 72.5484 362.714 71.9928 364.124 71.8712C368.156 71.5412 372.459 71.9754 376.49 72.0969C370.596 84.7043 351.686 86.5971 343.369 75.188C331.672 59.1249 352.12 40.4049 369.277 50.3553C372.386 52.1613 377.792 58.1698 377.792 61.7124V67.7382Z" fill="currentColor"/> <path class="inv" d="M314.081 47.7852L322.542 66.0711L329.702 47.7852H340.965L325.525 87.2049C322.036 92.7619 315.799 96.6865 308.893 96.3913V86.8403C313.232 86.4061 316.703 83.4713 317.119 79.1994L302.384 47.7679H314.081V47.7852Z" fill="currentColor"/> <path class="inv" d="M386.904 51.953H384.3V59.4375H386.904V51.953Z" fill="currentColor"/> <path class="inv" d="M386.904 62.7543H384.3V70.2388H386.904V62.7543Z" fill="currentColor"/> <path class="inv" d="M386.904 41.1343H384.3V48.202H386.904V41.1343Z" fill="currentColor"/> <path class="inv" d="M386.904 73.9724H384.3V81.0402H386.904V73.9724Z" fill="currentColor"/> <path class="inv" d="M386.904 84.7737H384.3V91.8415H386.904V84.7737Z" fill="currentColor"/> </svg>
+  <div class="mark" aria-hidden="true">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5.5 12a10 10 0 0 1 13 0"/><path d="M9 15.5a5 5 0 0 1 6 0"/><path d="M12 19h.01"/><path d="M3 3l18 18"/></svg>
+  </div>
+  <h1 data-t="title">You're offline</h1>
+  <p data-t="body">BookingBye needs a connection to search and book. Check your Wi-Fi or mobile data, then try again.</p>
+  <button type="button" data-t="retry" onclick="retry()">Try again</button>
+  <p class="note" data-t="note">This page reloads by itself when you're back online.</p>
+</main>
+<script>
+  // The page that failed; the app writes its address here.
+  var FAILED_URL = "__BOOKINGBYE_FAILED_URL__";
+
+  function retry() {
+    location.replace(/^https:\/\//.test(FAILED_URL) ? FAILED_URL : "/");
+  }
+
+  (function () {
+    var COPY = {
+      en: {
+        unreachable: "Can't reach BookingBye",
+        unreachableBody: "Your phone is online, but BookingBye isn't answering. Try again in a moment."
+      },
+      ar: {
+        title: "أنت غير متصل بالإنترنت",
+        body: "يحتاج BookingBye إلى اتصال بالإنترنت للبحث والحجز. تحقّق من شبكة Wi-Fi أو بيانات الهاتف، ثم حاول مرة أخرى.",
+        retry: "حاول مرة أخرى",
+        note: "ستُعاد تحميل الصفحة تلقائيًا عند عودة الاتصال.",
+        unreachable: "تعذّر الوصول إلى BookingBye",
+        unreachableBody: "هاتفك متصل بالإنترنت، لكن BookingBye لا يستجيب. حاول مرة أخرى بعد قليل."
+      },
+      ckb: {
+        title: "پەیوەندیت بە ئینتەرنێتەوە نییە",
+        body: "BookingBye بۆ گەڕان و حجزکردن پێویستی بە ئینتەرنێتە. Wi-Fi یان داتای مۆبایلەکەت بپشکنە، پاشان دووبارە هەوڵ بدەرەوە.",
+        retry: "دووبارە هەوڵ بدەرەوە",
+        note: "کاتێک ئینتەرنێت گەڕایەوە، پەڕەکە خۆی نوێ دەبێتەوە.",
+        unreachable: "ناتوانرێت بگەیتە BookingBye",
+        unreachableBody: "مۆبایلەکەت بە ئینتەرنێتەوە پەیوەستە، بەڵام BookingBye وەڵام ناداتەوە. دوای کەمێک دووبارە هەوڵ بدەرەوە."
+      }
+    };
+    var copy = COPY[document.documentElement.lang] || COPY.en;
+    document.querySelectorAll("[data-t]").forEach(function (el) {
+      var text = copy[el.getAttribute("data-t")];
+      if (text) el.textContent = text;
+    });
+    if (navigator.onLine) {
+      document.querySelector('[data-t="title"]').textContent = copy.unreachable;
+      document.querySelector('[data-t="body"]').textContent = copy.unreachableBody;
+    }
+    // Back online: load the page that failed.
+    window.addEventListener("online", retry);
+  })();
+</script>
+</body>
+</html>
