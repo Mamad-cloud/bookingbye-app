@@ -1,0 +1,168 @@
+# Build progress
+
+The working record of building this app: the steps, what each one did, what
+is left, and the decisions and findings behind them. Anyone (or any session)
+picking the work up starts here. Update it with every step.
+
+## How the work is done
+
+- One step at a time, each committed on `main` when done (message ends with
+  `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`), then on to the next.
+- The website (`G:\dev\bookingbye\frontend`, Next.js 15) and the backend
+  (`G:\dev\bookingbye\api`, Laravel) are reference only. Never edit them;
+  anything the website needs goes in [Website to-do](#website-to-do).
+- This machine is Windows with Node 24 and git: no Android SDK, no working
+  Java, no Mac. Nothing native can be compiled here, so every Java and Swift
+  change is checked by reading it against the Capacitor source in
+  `node_modules/@capacitor/{android,ios}`. The first real build happens after
+  Android Studio is installed (README) or in CI (step 8).
+- The Xcode project is edited without Xcode with `scripts/xcode-add-file.py`
+  and `scripts/xcode-add-localized.py`. Check braces and parentheses still
+  balance in `project.pbxproj` afterwards.
+
+## Fixed decisions
+
+| | |
+|---|---|
+| App ID | `com.bookingbye.app` on both stores (confirmed by the owner; permanent) |
+| Name | BookingBye |
+| Stack | Capacitor 8.5 (current stable), `server.url` = https://bookingbye.com, iOS through Swift Package Manager |
+| Devices | iPhone only (`TARGETED_DEVICE_FAMILY = 1`); Android minSdk 24, target 36 |
+| Plugins | @capacitor/app, browser, filesystem, share; push in step 7. No splash-screen or status-bar plugin: the splash is native, the status bar is Capacitor 8's built-in SystemBars |
+| Shell code | Android `android/app/src/main/java/com/bookingbye/app/`, iOS `ios/App/App/`; settings in `capacitor.config.js` under `plugins.AppShell` |
+| Languages | Native strings in English, Arabic, Sorani (`values-ar`, `values-b+ckb`; `en/ar/ckb.lproj`). Sorani wording needs a native speaker's check |
+
+## Findings from the Capacitor source that shaped the design
+
+- Android injects the bridge only into the `server.url` origin
+  (`addDocumentStartJavaScript`), and the message listener only accepts that
+  origin plus `allowNavigation`. So `allowNavigation` stays empty.
+- iOS injects the bridge into every main-frame page and has no origin check.
+  `ShellViewController` wraps the `bridge` message handler (BridgeOriginGuard).
+- Capacitor's `server.errorPath` also fires on HTTP 4xx/5xx (it would replace
+  the site's 404 page with "offline"), and on Android it is served at
+  `https://bookingbye.com/<errorPath>`, colliding with the site's own
+  `/offline.html`. Not used: step 6 does its own offline page.
+- Capacitor's plugin `shouldOverrideLoad` on Android only gets the URL (no
+  frame, gesture, or redirect), so Android navigation is a `BridgeWebViewClient`
+  subclass; on iOS a plugin's `shouldOverrideLoad` gets the full `WKNavigationAction`.
+- Android `BridgeWebChromeClient` offers the camera only for inputs with a
+  `capture` attribute; none of the site's inputs have one (step 5 adds a chooser).
+- `BridgeActivity` replays the launch intent through `onNewIntent` from inside
+  `super.onCreate`. iOS `SceneDelegateProxy` holds cold-start links until the
+  first `viewDidAppear`, then posts `.capacitorSceneOpenURL` /
+  `.capacitorSceneOpenUniversalLink` (userInfo `url`).
+- `MainActivity` is `singleTask`: a `bookingbye://` intent brings it forward
+  and clears the Browser plugin's Custom Tab above it.
+- Site facts: `www.bookingbye.com` 301s to the apex; dark mode is the `dark`
+  class on `<html>` (user choice, not the system's); the site never calls
+  `navigator.geolocation`; file inputs: `account_form.tsx` (image/*),
+  `agency-signup` (.pdf,.jpg,.jpeg,.png), `PackageDocumentsUploader` (visa documents).
+
+## Steps
+
+| # | Step | State | Commit |
+|---|---|---|---|
+| 1 | Scaffold: Capacitor, platforms, user agent, version wiring, README | done | `dc79feb` |
+| 2 | Icons and native splash (`npm run assets`), `.gitattributes` | done | `64c4c75` |
+| 3 | Navigation: what opens in the app, what goes to the phone; iOS bridge limited to the site | done | `1784a45` |
+| 4 | `bookingbye://auth` sign-in return; App Links / Universal Links | done | `ba326ba` |
+| 5 | File uploads with camera, location, permission texts | **in progress** | |
+| 6 | Offline screen; status bar following the site's dark mode | to do | |
+| 7 | Push notifications (FCM) | to do | |
+| 8 | CI (Codemagic + GitHub Actions), signing, store checklist | to do | |
+
+### Done, in short
+
+1. `capacitor.config.js` (JS, typed through JSDoc; TypeScript 7 dropped the API the CLI uses for .ts configs), `appendUserAgent: BookingByeApp/<package.json version>`. Version: `package.json` → Android `build.gradle` reads it; `scripts/sync-version.js` writes iOS `MARKETING_VERSION` (`npm run sync`). Build numbers: `APP_BUILD_NUMBER` env (Android), `CURRENT_PROJECT_VERSION` (iOS), from CI.
+2. `scripts/generate-assets.js` (sharp) from `resources/icon-source.png`: navy ticket (#083882) on white for icons, white ticket for the splash and notification icon (`ic_stat_notify`), Play icon and feature graphic in `resources/store/`. Android splash: core-splashscreen theme, held by `MainActivity` until the first page commits (max 8 s). iOS: navy `LaunchScreen.storyboard`, held as an overlay by `ShellViewController`.
+3. `Navigation.java` / `Navigation.swift` (same rules; README table). appHosts, paymentHosts (12 gateway domains from the backend's gateways), payment flow judged from the last page let through, form POSTs stay in the app, new windows via `ShellChromeClient.onCreateWindow` (Android) / `targetFrame == nil` (iOS), intent:// opened like Chrome, a no-app message in three languages.
+4. `IncomingLinks.java` / `IncomingLinks.swift`. Token accepted only during an app-started sign-in (Android: Browser activity opened within 15 min, stored in SharedPreferences; iOS: the SFSafariViewController is still presented). Manifest: scheme filter + autoVerify App Links with `uri-relative-filter-group` exclusions; `keptInBrowser` in config for Android < 15. iOS: `CFBundleURLTypes`, `App.entitlements` (applinks + webcredentials), `CODE_SIGN_ENTITLEMENTS`.
+
+### Step 5: file uploads, camera, location (in progress)
+
+- Android manifest: `CAMERA`, `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION`;
+  `uses-feature` camera and location with `required="false"`.
+- `ShellChromeClient.onShowFileChooser`: when the input accepts images (or
+  anything) and has no `capture`, show a sheet "Take a photo / Choose a file";
+  the photo path calls `super` with FileChooserParams that say capture + image/*,
+  which reuses Capacitor's camera code and permission request. Strings
+  `upload_take_photo`, `upload_choose_file` in en/ar/ckb.
+- Location needs nothing more on Android: `BridgeWebChromeClient` already asks.
+- iOS `Info.plist`: `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`,
+  `NSLocationWhenInUseUsageDescription`, in English, and translated in
+  `en/ar/ckb.lproj/InfoPlist.strings` (variant group via `xcode-add-localized.py`).
+  iOS asks for location twice (system, then the page); WebKit has no API to skip the second.
+
+### Step 6: offline screen, status bar (to do)
+
+- `www/offline.html`, self-contained, in en/ar/ckb (ar and ckb right-to-left;
+  pick by `navigator.language`, or the site's locale cookie when readable),
+  brand navy, a Try again button that reloads the page that failed, and
+  automatic retry on the `online` event.
+- Android: in `ShellWebViewClient.onReceivedError`, for the main frame only
+  and a connection error (not HTTP status pages), load the page with
+  `loadDataWithBaseURL("https://bookingbye.com/", html, …, failedUrl)` so it
+  can navigate back; the failed URL passed in by text replacement.
+- iOS: `didFailProvisionalNavigation` / `didFail` are Capacitor's. Observe
+  through KVO, or wrap the navigation delegate, then
+  `loadHTMLString(html, baseURL: https://bookingbye.com/)`. Skip
+  `NSURLErrorCancelled` (-999).
+- Status bar: a small script injected into the site (Android
+  `WebViewCompat.addDocumentStartJavaScript` for the server origin; iOS
+  `WKUserScript` checking `location.origin`) that watches `html.dark` and
+  calls `Capacitor.Plugins.SystemBars.setStyle({ style: dark ? "DARK" : "LIGHT" })`.
+
+### Step 7: push notifications (to do)
+
+- `@capacitor-firebase/messaging` (FCM tokens on both platforms; plain
+  @capacitor/push-notifications would give APNs tokens on iOS).
+- Android: `google-services.json` (gitignored, from CI secrets; the template's
+  build.gradle applies the plugin only when the file exists). Default icon
+  `@drawable/ic_stat_notify`, colour `@color/brand_navy`, a default channel,
+  `POST_NOTIFICATIONS` (Android 13+). Check the app does not crash without the file.
+- iOS: `GoogleService-Info.plist` (gitignored, from CI), `FirebaseApp.configure()`
+  only when the file is present, Push Notifications capability
+  (`aps-environment` in App.entitlements), APNs key uploaded to Firebase.
+- Tapping a notification: the payload's `data.url` (a bookingbye.com address)
+  opens in the webview, from a cold start too. Route it through IncomingLinks.
+- The website asks for permission (after sign-in, not at launch) and sends
+  the token to the backend: document the contract (`docs/push.md`) and the
+  endpoints. Proposal: `POST /api/v1/devices` {token, platform, app_version,
+  locale} (authenticated, upsert by token), `DELETE /api/v1/devices/{token}`
+  on sign-out; the backend sends with the FCM HTTP v1 API, removes tokens
+  FCM reports as unregistered, sends `data.url` for the screen to open.
+
+### Step 8: CI, signing, store checklist (to do)
+
+- `codemagic.yaml`: iOS (App Store Connect API key, automatic signing,
+  `agvtool` build number, TestFlight upload) and Android (keystore, AAB, Play
+  internal track). `.github/workflows/`: same for GitHub Actions (macos runner).
+  Both run `npm ci && npx cap sync`, write the Firebase files from secrets.
+- Android release signing in `build.gradle` from `keystore.properties` or
+  env vars; how to make the upload keystore (`keytool`), and to keep it safe.
+- `docs/store-checklist.md`: privacy policy URL, account deletion (in-app
+  path; today it is a support ticket), App Store privacy labels and Play data
+  safety answers, screenshots (6.9" iPhone; Android phone), age rating,
+  review notes with a test account, and the website to-do below.
+
+## Website to-do
+
+Collected for the website owner; nothing here is done in this repo.
+
+1. **Deploy the app pages.** The live site returns 404 for `/app-auth` and
+   `/.well-known/*` (checked 2026-10-19), so app sign-in and app links do not
+   work yet.
+2. **`.well-known` settings** once the values exist (README, "Sign-in and
+   links into the app"): `APP_ANDROID_PACKAGE`, `APP_ANDROID_SHA256_FINGERPRINTS`,
+   `APP_IOS_APP_IDS`.
+3. **Privacy policy page.** Only `/terms` exists; both stores require a privacy policy URL.
+4. **Safe area at the top.** The site pads left, right and bottom
+   (`env(safe-area-inset-*)`) but not the top; in the app the header sits
+   under the status bar. The sticky header needs
+   `padding-top: env(safe-area-inset-top)`.
+5. **Account deletion** started from inside the app (Apple 5.1.1(v), Google
+   Play policy). Today it is a support ticket; that is allowed if it is
+   reachable in the app and clearly explained, but a real deletion flow is better.
+6. **Push**: register the token and the backend endpoints (step 7).
+7. **Location**: the site never asks for it; maps show no "near me" until it does.
