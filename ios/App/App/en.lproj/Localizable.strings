@@ -1,0 +1,5 @@
+/* The app's own few words, in the phone's language. */
+
+/* A link could not be opened: nothing installed handles it (a bank app, say). */
+"no_app_for_link" = "There's no app on this phone that can open this link.";
+"ok" = "OK";

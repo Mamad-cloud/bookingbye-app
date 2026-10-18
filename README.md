@@ -62,6 +62,30 @@ iOS builds need macOS with Xcode. There is no Mac here, so they run in the
 cloud: see the CI section (added in a later step). On a Mac it is
 `npm ci && npm run sync && npm run ios`.
 
+## What opens where
+
+The shell decides every page load, with the same rules on both platforms
+(`Navigation.java`, `Navigation.swift`), from `plugins.AppShell` in
+`capacitor.config.js`:
+
+| Address | Opens |
+|---|---|
+| bookingbye.com and its subdomains (`appHosts`) | in the app |
+| a payment gateway (`paymentHosts`) | in the app |
+| any https page a gateway or bank page moves on to without a tap (3-D Secure) | in the app |
+| a frame inside a page (maps, chat) | in the app |
+| a form posted to another site (checkout to a gateway) | in the app |
+| `target="_blank"` / `window.open` to the hosts above | in the app, same screen |
+| any other website, `_blank` links, a link tapped on a payment page | the phone's browser |
+| `tel:`, `mailto:`, `sms:`, `intent://`, FIB and bank app links | the app that handles them |
+
+A new payment gateway that redirects back to bookingbye.com needs its domain
+in `paymentHosts`, then `npm run sync` and an app release; until then the
+checkout sends the customer to the browser for it.
+
+Only https://bookingbye.com can call the native plugins. Payment and bank
+pages open in the app but get no answer from it.
+
 ## Icons and splash
 
 Every icon and splash image is drawn from `resources/icon-source.png`, the

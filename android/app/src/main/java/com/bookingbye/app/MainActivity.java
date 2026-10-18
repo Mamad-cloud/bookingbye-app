@@ -35,6 +35,16 @@ public class MainActivity extends BridgeActivity {
             return;
         }
 
+        // Where pages open (Navigation), including new windows. The bridge
+        // itself only answers https://bookingbye.com: Capacitor injects it
+        // into, and takes messages from, the server.url origin alone, since
+        // capacitor.config.js has no allowNavigation.
+        Navigation navigation = new Navigation(this, bridge.getConfig().getPluginConfiguration("AppShell"));
+        WebView webView = bridge.getWebView();
+        bridge.setWebViewClient(new ShellWebViewClient(bridge, navigation));
+        webView.getSettings().setSupportMultipleWindows(true);
+        webView.setWebChromeClient(new ShellChromeClient(bridge, navigation));
+
         bridge.addWebViewListener(
             new WebViewListener() {
                 @Override

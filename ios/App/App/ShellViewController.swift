@@ -11,6 +11,12 @@ class ShellViewController: CAPBridgeViewController {
     private var splash: UIView?
     private var loadingObservation: NSKeyValueObservation?
 
+    override func capacitorDidLoad() {
+        super.capacitorDidLoad()
+        bridge?.registerPluginInstance(AppShellPlugin())
+        admitOnlyTheWebsite()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         coverWithSplash()
@@ -19,6 +25,18 @@ class ShellViewController: CAPBridgeViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         // White on the navy splash; afterwards whatever SystemBars has set.
         splash != nil ? .lightContent : super.preferredStatusBarStyle
+    }
+
+    // MARK: - Bridge
+
+    /// Capacitor puts its bridge into every page the webview shows and takes
+    /// calls from any of them; payment and bank pages also open in the app
+    /// (see Navigation). Only the website itself (server.url) gets answers.
+    private func admitOnlyTheWebsite() {
+        guard let bridge = bridge as? CapacitorBridge else { return }
+        let handler = bridge.webViewDelegationHandler
+        handler.contentController.removeScriptMessageHandler(forName: BridgeOriginGuard.name)
+        handler.contentController.add(BridgeOriginGuard(handler: handler, origin: bridge.config.serverURL), name: BridgeOriginGuard.name)
     }
 
     // MARK: - Splash
@@ -51,5 +69,35 @@ class ShellViewController: CAPBridgeViewController {
         loadingObservation = nil
         setNeedsStatusBarAppearanceUpdate()
         UIView.animate(withDuration: 0.2, animations: { cover.alpha = 0 }, completion: { _ in cover.removeFromSuperview() })
+    }
+}
+
+/// Passes the bridge's messages to Capacitor only when they come from the
+/// main frame of one origin.
+private final class BridgeOriginGuard: NSObject, WKScriptMessageHandler {
+    /// The name Capacitor's bridge script posts its messages to.
+    static let name = "bridge"
+
+    private weak var handler: WKScriptMessageHandler?
+    private let scheme: String?
+    private let host: String?
+    private let port: Int
+
+    init(handler: WKScriptMessageHandler, origin: URL) {
+        self.handler = handler
+        self.scheme = origin.scheme?.lowercased()
+        self.host = origin.host?.lowercased()
+        self.port = origin.port ?? 0
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        let origin = message.frameInfo.securityOrigin
+        guard message.frameInfo.isMainFrame,
+              origin.protocol.lowercased() == scheme,
+              origin.host.lowercased() == host,
+              origin.port == port else {
+            return
+        }
+        handler?.userContentController(userContentController, didReceive: message)
     }
 }

@@ -1,0 +1,5 @@
+/* The app's own few words, in the phone's language. Central Kurdish (Sorani). */
+
+/* A link could not be opened: nothing installed handles it (a bank app, say). */
+"no_app_for_link" = "هیچ ئەپێک لەسەر ئەم مۆبایلە نییە کە بتوانێت ئەم بەستەرە بکاتەوە.";
+"ok" = "باشە";
