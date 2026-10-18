@@ -73,7 +73,7 @@ picking the work up starts here. Update it with every step.
 | 5 | File uploads with camera, location, permission texts | done | see git log |
 | 6 | Offline screen; status bar following the site's dark mode | done | see git log |
 | 7 | Push notifications (FCM) | done | see git log |
-| 8 | CI (Codemagic + GitHub Actions), signing, store checklist | **next** | |
+| 8 | CI (Codemagic + GitHub Actions), signing, store checklist | done | see git log |
 
 ### Done, in short
 
@@ -158,7 +158,7 @@ picking the work up starts here. Update it with every step.
 - `npm audit`: 3 moderate, in the Capacitor CLI's `xcode` dependency
   (build-time only; the fix is a breaking CLI upgrade). Recheck on Capacitor updates.
 
-### Step 8: CI, signing, store checklist (to do)
+### Step 8: CI, signing, store checklist (done)
 
 - `codemagic.yaml`: iOS (App Store Connect API key, automatic signing,
   `agvtool` build number, TestFlight upload) and Android (keystore, AAB, Play
@@ -170,6 +170,24 @@ picking the work up starts here. Update it with every step.
   path; today it is a support ticket), App Store privacy labels and Play data
   safety answers, screenshots (6.9" iPhone; Android phone), age rating,
   review notes with a test account, and the website to-do below.
+- Done as: `codemagic.yaml`, `.github/workflows/{android,ios}.yml` (YAML
+  checked to parse), release signing in `android/app/build.gradle`,
+  `scripts/build-number.js` (minutes since 2026-01-01, shared by both CIs),
+  `sync-version.js` also writes `CURRENT_PROJECT_VERSION`, a shared Xcode
+  scheme, `ios/ExportOptions.plist` (upload to App Store Connect),
+  `ITSAppUsesNonExemptEncryption = NO`, `gradlew` made executable in git,
+  and `docs/store-checklist.md`.
+
+## What is left after step 8
+
+The app's code is complete; nothing has been compiled yet. In order:
+
+1. Install Android Studio (README) and build a debug app: fix whatever the
+   first compile finds in the Java (`gradlew.bat assembleDebug`), then test
+   on a phone with the checklist's test list (store-checklist.md section 9).
+2. Set up one CI (store-checklist.md section 3) and run the iOS workflow: the
+   first Swift compile; fix what it finds.
+3. The accounts, keys and website items in store-checklist.md, then submit.
 
 ## Website to-do
 
@@ -193,3 +211,7 @@ Collected for the website owner; nothing here is done in this repo.
    for permission and posting the token, the backend's `device_tokens` table,
    endpoints and sending.
 7. **Location**: the site never asks for it; maps show no "near me" until it does.
+8. **Google Analytics in the app**: `allow_google_signals: false` and
+   `allow_ad_personalization_signals: false` when `isInApp()`, so Apple does
+   not count it as tracking (no App Tracking Transparency prompt needed).
+9. **Public account-deletion page** for Google Play (e.g. /delete-account).

@@ -1,0 +1,109 @@
+# Codemagic (https://codemagic.io): store builds in the cloud, iOS on a Mac.
+# Setup once, in the Codemagic web app (docs/store-checklist.md, "CI"):
+#   Team integrations › Developer Portal: an App Store Connect API key named
+#     "BookingBye App Store Connect" (role Admin, so it can make certificates)
+#   Code signing identities › Android keystores: the upload keystore,
+#     reference name "bookingbye_upload"
+#   Environment variables, group "firebase" (both optional; without them the
+#     build has push turned off):
+#     GOOGLE_SERVICES_JSON_BASE64        base64 of google-services.json
+#     GOOGLE_SERVICE_INFO_PLIST_BASE64   base64 of GoogleService-Info.plist
+#   Environment variables, group "google_play":
+#     GCLOUD_SERVICE_ACCOUNT_CREDENTIALS the Play service account's JSON key
+# Then start a workflow by hand, or push a tag such as v1.0.0.
+#
+# .github/workflows/ does the same on GitHub Actions; the build number
+# (scripts/build-number.js) keeps the two from colliding.
+
+workflows:
+  ios-release:
+    name: iOS → TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: BookingBye App Store Connect
+    environment:
+      node: 24
+      xcode: latest
+      groups:
+        - firebase
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bookingbye.app
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "v*"
+    scripts:
+      - name: Install
+        script: npm ci
+      - name: Firebase settings
+        script: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST_BASE64" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > ios/App/App/GoogleService-Info.plist
+          else
+            echo "GOOGLE_SERVICE_INFO_PLIST_BASE64 is not set: push notifications are off in this build."
+          fi
+      - name: Copy the web assets and plugins, set version and build number
+        script: |
+          export APP_BUILD_NUMBER=$(node scripts/build-number.js)
+          npx cap sync ios
+          node scripts/sync-version.js
+      - name: Signing
+        script: xcode-project use-profiles
+      - name: Build
+        script: xcode-project build-ipa --project ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  android-release:
+    name: Android → Play internal testing
+    instance_type: linux_x2
+    max_build_duration: 30
+    environment:
+      node: 24
+      java: 21
+      groups:
+        - firebase
+        - google_play
+      android_signing:
+        - bookingbye_upload
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "v*"
+    scripts:
+      - name: Install
+        script: npm ci
+      - name: Firebase settings
+        script: |
+          if [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json
+          else
+            echo "GOOGLE_SERVICES_JSON_BASE64 is not set: push notifications are off in this build."
+          fi
+      - name: Build the bundle
+        script: |
+          export APP_BUILD_NUMBER=$(node scripts/build-number.js)
+          # android/app/build.gradle reads these (Codemagic names them CM_*).
+          export ANDROID_KEYSTORE_PATH="$CM_KEYSTORE_PATH"
+          export ANDROID_KEYSTORE_PASSWORD="$CM_KEYSTORE_PASSWORD"
+          export ANDROID_KEY_ALIAS="$CM_KEY_ALIAS"
+          export ANDROID_KEY_PASSWORD="$CM_KEY_PASSWORD"
+          npx cap sync android
+          cd android && ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        # Play accepts only drafts until the app's first release is published.
+        submit_as_draft: true

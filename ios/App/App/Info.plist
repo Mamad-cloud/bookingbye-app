@@ -43,6 +43,10 @@
 	<string>BookingBye uses your location to show hotels and places near you on the map.</string>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<false/>
+	<!-- Only standard HTTPS: answers App Store Connect's export compliance
+	     question for every build. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

@@ -7,6 +7,21 @@ def appVersion = new groovy.json.JsonSlurper().parse(file('../../package.json'))
 def (major, minor, patch) = appVersion.tokenize('.').collect { it as int }
 def appBuildNumber = (System.getenv('APP_BUILD_NUMBER') ?: (major * 10000 + minor * 100 + patch).toString()) as int
 
+// Release signing with the upload key (Play re-signs with its own key). From
+// android/keystore.properties on a developer's machine (never in git), else
+// from the environment in CI. Without either, release builds are unsigned.
+//   storeFile=/path/to/upload.jks    ANDROID_KEYSTORE_PATH
+//   storePassword=...                ANDROID_KEYSTORE_PASSWORD
+//   keyAlias=upload                  ANDROID_KEY_ALIAS
+//   keyPassword=...                  ANDROID_KEY_PASSWORD
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+def signing = { String property, String variable -> keystoreProperties.getProperty(property) ?: System.getenv(variable) }
+def releaseStoreFile = signing('storeFile', 'ANDROID_KEYSTORE_PATH')
+
 android {
     namespace = "com.bookingbye.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -23,8 +38,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (releaseStoreFile) {
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword signing('storePassword', 'ANDROID_KEYSTORE_PASSWORD')
+                keyAlias signing('keyAlias', 'ANDROID_KEY_ALIAS')
+                keyPassword signing('keyPassword', 'ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (releaseStoreFile) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

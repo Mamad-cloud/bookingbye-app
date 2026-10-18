@@ -1,0 +1,80 @@
+# Builds the Play Store bundle (.aab), signed with the upload key, and puts
+# it on Play's internal testing track as a draft. Run it from the Actions
+# tab, or push a tag such as v1.0.0. codemagic.yaml does the same on Codemagic.
+#
+# Repository secrets (Settings › Secrets and variables › Actions):
+#   ANDROID_KEYSTORE_BASE64      base64 of the upload keystore (.jks)
+#   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#   GOOGLE_SERVICES_JSON_BASE64  base64 of google-services.json (optional:
+#                                without it, push notifications are off)
+#   PLAY_SERVICE_ACCOUNT_JSON    the Play service account's JSON key (optional:
+#                                without it, the bundle is only kept as an artifact)
+name: Android release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci
+
+      - name: Firebase settings
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json
+          else
+            echo "::warning::GOOGLE_SERVICES_JSON_BASE64 is not set: push notifications are off in this build."
+          fi
+
+      - name: Upload key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+
+      - name: Build the bundle
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          export APP_BUILD_NUMBER=$(node scripts/build-number.js)
+          npx cap sync android
+          cd android && ./gradlew bundleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload to Play (internal testing, draft)
+        if: env.PLAY_SERVICE_ACCOUNT_JSON != ''
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.bookingbye.app
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          # Play accepts only drafts until the app's first release is published.
+          status: draft

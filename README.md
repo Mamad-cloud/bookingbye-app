@@ -28,6 +28,9 @@ ios/                  Xcode project (Swift Package Manager, no CocoaPods)
 resources/            icon artwork and store listing images
 scripts/              version sync, icon and splash generator, Xcode project helpers
 docs/PROGRESS.md      build record: steps, decisions, what is left
+docs/push.md          push notifications: Firebase, website and backend
+docs/store-checklist.md  everything needed to publish
+codemagic.yaml, .github/workflows/  store builds in the cloud
 ```
 
 ## Setting up on Windows (Android)
@@ -60,8 +63,35 @@ or, without the IDE: `cd android && gradlew.bat assembleDebug`.
 ## iOS
 
 iOS builds need macOS with Xcode. There is no Mac here, so they run in the
-cloud: see the CI section (added in a later step). On a Mac it is
-`npm ci && npm run sync && npm run ios`.
+cloud (below). On a Mac it is `npm ci && npm run sync && npm run ios`;
+`npx cap sync` there also creates `ios/App/CapApp-SPM/symlinks/`, which the
+Firebase plugin's Swift package needs.
+
+## Store builds (CI)
+
+Two equivalent setups; pick one:
+
+- [codemagic.yaml](codemagic.yaml) for [Codemagic](https://codemagic.io);
+- [.github/workflows/](.github/workflows) for GitHub Actions.
+
+Each builds iOS (signed, uploaded to TestFlight) and Android (a signed `.aab`
+for Play's internal testing track), when started by hand or when a tag like
+`v1.0.0` is pushed. The secrets each needs are listed at the top of its
+file. Build numbers come from `scripts/build-number.js` (minutes since
+2026-01-01), so builds from either never collide.
+
+Android release signing reads the upload key from `android/keystore.properties`
+(never committed) or from the `ANDROID_KEYSTORE_*` variables:
+
+```
+storeFile=C:/keys/bookingbye-upload.jks
+storePassword=…
+keyAlias=upload
+keyPassword=…
+```
+
+Everything else needed to publish (accounts, keys, privacy answers,
+screenshots, review notes) is in [docs/store-checklist.md](docs/store-checklist.md).
 
 ## What opens where
 
@@ -174,6 +204,5 @@ The output is committed. Run it again only when the artwork changes.
 
 Change `version` in `package.json`, then run `npm run sync`, which also writes it
 into the iOS project. The build number, which must grow with every store
-upload, comes from CI (`APP_BUILD_NUMBER` on Android, `CURRENT_PROJECT_VERSION`
-on iOS). A local Android build derives one from the version
-(1.2.3 → 10203); upload only CI builds so the two never collide.
+upload, comes from CI (`APP_BUILD_NUMBER`, see above). A local Android build derives a small one from the version
+(1.2.3 → 10203); upload only CI builds, whose numbers are far larger.

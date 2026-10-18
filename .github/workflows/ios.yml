@@ -1,0 +1,87 @@
+# Builds the iOS app on a Mac, signs it for the App Store and uploads it to
+# App Store Connect, where it appears in TestFlight. Run it from the Actions
+# tab, or push a tag such as v1.0.0. codemagic.yaml does the same on Codemagic.
+#
+# Repository secrets (Settings › Secrets and variables › Actions):
+#   APPLE_TEAM_ID                     Apple Developer › Membership › Team ID
+#   APP_STORE_CONNECT_KEY_ID          an App Store Connect API key (role Admin,
+#   APP_STORE_CONNECT_ISSUER_ID       so Xcode can make the distribution
+#   APP_STORE_CONNECT_KEY_BASE64      certificate): its ID, issuer and base64 of the .p8
+#   GOOGLE_SERVICE_INFO_PLIST_BASE64  base64 of GoogleService-Info.plist (optional:
+#                                     without it, push notifications are off)
+name: iOS release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Firebase settings
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        run: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST_BASE64" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > ios/App/App/GoogleService-Info.plist
+          else
+            echo "::warning::GOOGLE_SERVICE_INFO_PLIST_BASE64 is not set: push notifications are off in this build."
+          fi
+
+      - name: Copy the web assets and plugins, set version and build number
+        run: |
+          export APP_BUILD_NUMBER=$(node scripts/build-number.js)
+          npx cap sync ios
+          node scripts/sync-version.js
+
+      - name: App Store Connect key
+        env:
+          APP_STORE_CONNECT_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
+        run: echo "$APP_STORE_CONNECT_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic
+
+      - name: Upload to App Store Connect
+        run: |
+          plutil -replace teamID -string "$APPLE_TEAM_ID" ios/ExportOptions.plist
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
