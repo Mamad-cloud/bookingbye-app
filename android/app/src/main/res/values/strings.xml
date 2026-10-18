@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BookingBye</string>
+    <string name="title_activity_main">BookingBye</string>
+    <string name="package_name">com.bookingbye.app</string>
+    <string name="custom_url_scheme">com.bookingbye.app</string>
+</resources>

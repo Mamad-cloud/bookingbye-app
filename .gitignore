@@ -1,0 +1,25 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Signing material and Firebase configs never go in git; CI supplies them.
+*.keystore
+*.jks
+keystore.properties
+android/app/google-services.json
+ios/App/App/GoogleService-Info.plist
+*.p8
+*.p12
+*.mobileprovision
+
+# Build output
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/capacitor-cordova-android-plugins/build/
+ios/App/build/
+ios/DerivedData/
+ios/App/output/
