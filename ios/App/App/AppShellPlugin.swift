@@ -13,6 +13,8 @@ public class AppShellPlugin: CAPPlugin, CAPBridgedPlugin {
 
     private var navigation: Navigation?
     private var incomingLinks: IncomingLinks?
+    /// Held here: Capacitor keeps its push notification handler weakly.
+    private var notificationTaps: NotificationTaps?
 
     override public func load() {
         guard let config = bridge?.config.getPluginConfig("AppShell") else { return }
@@ -23,6 +25,18 @@ public class AppShellPlugin: CAPPlugin, CAPBridgedPlugin {
         // started with until plugins have loaded.
         for name in [Notification.Name.capacitorSceneOpenURL, .capacitorSceneOpenUniversalLink] {
             NotificationCenter.default.addObserver(self, selector: #selector(linkOpened(_:)), name: name, object: nil)
+        }
+
+        // Push notification taps. This plugin is registered after the others
+        // (ShellViewController.capacitorDidLoad), so Firebase Messaging has
+        // already put its handler in place for this one to wrap.
+        if let router = bridge?.notificationRouter {
+            let taps = NotificationTaps(firebase: router.pushNotificationHandler) { [weak self] url in
+                guard let self = self, let bridge = self.bridge else { return }
+                self.incomingLinks?.open(url, bridge: bridge)
+            }
+            notificationTaps = taps
+            router.pushNotificationHandler = taps
         }
     }
 

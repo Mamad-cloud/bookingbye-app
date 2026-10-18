@@ -16,8 +16,8 @@ picking the work up starts here. Update it with every step.
   change is checked by reading it against the Capacitor source in
   `node_modules/@capacitor/{android,ios}`. The first real build happens after
   Android Studio is installed (README) or in CI (step 8).
-- Backslashes typed into shell heredocs reach the file halved (`\` becomes
-  `\`): write Java/Swift strings with escapes through the editor, then grep
+- Backslashes typed into shell heredocs reach the file halved (two become
+  one): write Java/Swift strings with escapes through the editor, then grep
   the sources for them.
 - The Xcode project is edited without Xcode with `scripts/xcode-add-file.py`
   and `scripts/xcode-add-localized.py`. Check braces and parentheses still
@@ -72,8 +72,8 @@ picking the work up starts here. Update it with every step.
 | 4 | `bookingbye://auth` sign-in return; App Links / Universal Links | done | `ba326ba` |
 | 5 | File uploads with camera, location, permission texts | done | see git log |
 | 6 | Offline screen; status bar following the site's dark mode | done | see git log |
-| 7 | Push notifications (FCM) | **next** | |
-| 8 | CI (Codemagic + GitHub Actions), signing, store checklist | to do | |
+| 7 | Push notifications (FCM) | done | see git log |
+| 8 | CI (Codemagic + GitHub Actions), signing, store checklist | **next** | |
 
 ### Done, in short
 
@@ -125,7 +125,7 @@ picking the work up starts here. Update it with every step.
   only: Android HOST_LOOKUP/CONNECT/TIMEOUT/IO; iOS NSURLError
   not-connected/lost/host/DNS/timeout/roaming/data-not-allowed.
 
-### Step 7: push notifications (to do)
+### Step 7: push notifications (done)
 
 - `@capacitor-firebase/messaging` (FCM tokens on both platforms; plain
   @capacitor/push-notifications would give APNs tokens on iOS).
@@ -144,6 +144,19 @@ picking the work up starts here. Update it with every step.
   locale} (authenticated, upsert by token), `DELETE /api/v1/devices/{token}`
   on sign-out; the backend sends with the FCM HTTP v1 API, removes tokens
   FCM reports as unregistered, sends `data.url` for the screen to open.
+- Done as: `docs/push.md` (Firebase setup, website code, backend table,
+  endpoints and payload). Android: manifest meta-data (icon, colour, channel
+  `booking_updates`, auto-init off), channel created in `MainActivity`, taps
+  read from the launch intent's `url` extra. iOS: AppDelegate forwards APNs
+  callbacks, `aps-environment` entitlement, `FirebaseMessagingAutoInitEnabled`
+  NO, `NotificationTaps` wraps Capacitor's push handler (the plugin's), a
+  build phase copies `GoogleService-Info.plist` only when present.
+- Windows cannot make the symlink the plugin's SPM option needs
+  (`experimental.ios.spm.packageOptions`), so `CapApp-SPM/Package.swift` was
+  written by hand to match the CLI; `cap sync` on the Mac rewrites it and
+  creates `symlinks/` (gitignored).
+- `npm audit`: 3 moderate, in the Capacitor CLI's `xcode` dependency
+  (build-time only; the fix is a breaking CLI upgrade). Recheck on Capacitor updates.
 
 ### Step 8: CI, signing, store checklist (to do)
 
@@ -176,5 +189,7 @@ Collected for the website owner; nothing here is done in this repo.
 5. **Account deletion** started from inside the app (Apple 5.1.1(v), Google
    Play policy). Today it is a support ticket; that is allowed if it is
    reachable in the app and clearly explained, but a real deletion flow is better.
-6. **Push**: register the token and the backend endpoints (step 7).
+6. **Push**: everything in `docs/push.md`: Firebase project, the site asking
+   for permission and posting the token, the backend's `device_tokens` table,
+   endpoints and sending.
 7. **Location**: the site never asks for it; maps show no "near me" until it does.

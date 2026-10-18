@@ -5,6 +5,10 @@
 	<!-- Universal Links (bookingbye.com links open the app) and saved
 	     bookingbye.com passwords, once the site's
 	     /.well-known/apple-app-site-association names this app. -->
+	<!-- Push notifications. Xcode switches this to "production" when it
+	     signs a build for the App Store or TestFlight. -->
+	<key>aps-environment</key>
+	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:bookingbye.com</string>

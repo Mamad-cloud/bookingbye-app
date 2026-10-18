@@ -36,7 +36,23 @@ const config = {
     contentInset: "never",
   },
 
+  experimental: {
+    ios: {
+      spm: {
+        // Avoids a Swift Package Manager identity clash between this plugin
+        // and Firebase's own package (capacitor-firebase issue 959).
+        packageOptions: { "@capacitor-firebase/messaging": { symlink: true } },
+      },
+    },
+  },
+
   plugins: {
+    FirebaseMessaging: {
+      // How a notification shows while the app is open (iOS; Android leaves
+      // that to the page).
+      presentationOptions: ["alert", "badge", "sound"],
+    },
+
     SystemBars: {
       // Dark icons, for the site's white header. AppShell switches them when
       // the site is put in dark mode.

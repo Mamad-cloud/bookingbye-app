@@ -2,7 +2,11 @@ package com.bookingbye.app;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +20,9 @@ public class MainActivity extends BridgeActivity {
 
     /** The longest the splash screen waits for the website, in milliseconds. */
     private static final long SPLASH_TIMEOUT_MS = 8000;
+
+    /** The data key of a push notification that names the page to open. */
+    private static final String NOTIFICATION_URL = "url";
 
     /** The Browser plugin's screen, which the website opens to sign in. */
     private static final String BROWSER_ACTIVITY = "com.capacitorjs.plugins.browser.BrowserControllerActivity";
@@ -71,6 +78,7 @@ public class MainActivity extends BridgeActivity {
         webView.getSettings().setSupportMultipleWindows(true);
         webView.setWebChromeClient(new ShellChromeClient(bridge, navigation()));
         getApplication().registerActivityLifecycleCallbacks(browserWatcher);
+        createNotificationChannel();
 
         bridge.addWebViewListener(
             new WebViewListener() {
@@ -94,20 +102,49 @@ public class MainActivity extends BridgeActivity {
     }
 
     /**
-     * A link opened the app: sign-in coming back (bookingbye://auth) or an
-     * App Link to bookingbye.com. Capacitor also calls this with the intent
-     * the app was started with, from inside super.onCreate.
+     * The app was opened by a link (sign-in coming back as bookingbye://auth,
+     * an App Link to bookingbye.com) or by tapping a push notification.
+     * Capacitor also calls this with the intent the app was started with,
+     * from inside super.onCreate.
      */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (bridge == null || intent == null || intent.getData() == null) return;
-        // A link already opened before Android closed the activity.
+        if (bridge == null || intent == null) return;
+        // Already opened before Android closed the activity.
         if (restoring && intent == getIntent()) return;
 
-        if (incomingLinks().open(bridge.getWebView(), intent.getData(), bridge.getServerUrl())) {
+        Uri link = intent.getData();
+        if (link == null) link = notificationLink(intent);
+        if (link != null && incomingLinks().open(bridge.getWebView(), link, bridge.getServerUrl())) {
             intent.setData(null);
+            intent.removeExtra(NOTIFICATION_URL);
         }
+    }
+
+    /**
+     * The page a tapped push notification points to: the "url" in its data,
+     * which Firebase hands over as an extra. IncomingLinks opens it only if it
+     * is a bookingbye.com address.
+     */
+    private static Uri notificationLink(Intent intent) {
+        if (!intent.hasExtra("google.message_id")) return null;
+        String url = intent.getStringExtra(NOTIFICATION_URL);
+        return url == null || url.isEmpty() ? null : Uri.parse(url);
+    }
+
+    /**
+     * The channel push notifications arrive on (Android 8+), which the
+     * customer sees by name in the app's notification settings.
+     */
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+        NotificationChannel channel = new NotificationChannel(
+            getString(R.string.notification_channel_id),
+            getString(R.string.notification_channel_name),
+            NotificationManager.IMPORTANCE_HIGH
+        );
+        getSystemService(NotificationManager.class).createNotificationChannel(channel);
     }
 
     @Override

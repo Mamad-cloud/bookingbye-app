@@ -23,6 +23,7 @@
 		CB0DA2125940D456CFD6928C /* IncomingLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 858FE165CB0DA2125940D456 /* IncomingLinks.swift */; };
 		2D2A88D1B17D7F1A3F7CF5CD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 83A8647C0DA43ADAB5CEBA4C /* InfoPlist.strings */; };
 		9C94E12D538D637FFF2B2BD0 /* OfflinePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C998DF99C94E12D538D637F /* OfflinePage.swift */; };
+		818ED6D554C23056FB2D66C7 /* NotificationTaps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276FCC97818ED6D554C23056 /* NotificationTaps.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		AFFB84645746FBF36D114770 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		043ED5DE9FD52EA2CB63C00D /* ckb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ckb; path = ckb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9C998DF99C94E12D538D637F /* OfflinePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflinePage.swift; sourceTree = "<group>"; };
+		276FCC97818ED6D554C23056 /* NotificationTaps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTaps.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +85,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				276FCC97818ED6D554C23056 /* NotificationTaps.swift */,
 				9C998DF99C94E12D538D637F /* OfflinePage.swift */,
 				83A8647C0DA43ADAB5CEBA4C /* InfoPlist.strings */,
 				858FE165CB0DA2125940D456 /* IncomingLinks.swift */,
@@ -114,6 +117,7 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				F1REBA5E0000000000000F1B /* Copy GoogleService-Info.plist */,
 			);
 			buildRules = (
 			);
@@ -184,11 +188,34 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		F1REBA5E0000000000000F1B /* Copy GoogleService-Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy GoogleService-Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "PLIST=\"${SRCROOT}/App/GoogleService-Info.plist\"\n# Firebase settings, kept out of git; CI writes the file before building.\nif [ -f \"$PLIST\" ]; then\n  cp \"$PLIST\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\nelse\n  echo \"warning: App/GoogleService-Info.plist is missing: push notifications are off in this build.\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				818ED6D554C23056FB2D66C7 /* NotificationTaps.swift in Sources */,
 				9C94E12D538D637FFF2B2BD0 /* OfflinePage.swift in Sources */,
 				CB0DA2125940D456CFD6928C /* IncomingLinks.swift in Sources */,
 				B1C922E4D3C93207503F9767 /* AppShellPlugin.swift in Sources */,

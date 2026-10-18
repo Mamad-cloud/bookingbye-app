@@ -3,4 +3,5 @@
     <string name="no_app_for_link">لا يوجد تطبيق على هذا الهاتف يمكنه فتح هذا الرابط.</string>
     <string name="upload_take_photo">التقاط صورة</string>
     <string name="upload_choose_file">اختيار ملف</string>
+    <string name="notification_channel_name">تحديثات الحجز</string>
 </resources>

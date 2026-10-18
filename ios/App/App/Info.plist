@@ -41,6 +41,8 @@
 	<string>BookingBye opens your photos so you can choose documents, such as a passport scan, to upload with your booking.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>BookingBye uses your location to show hotels and places near you on the map.</string>
+	<key>FirebaseMessagingAutoInitEnabled</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

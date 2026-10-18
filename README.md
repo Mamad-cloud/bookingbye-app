@@ -132,6 +132,15 @@ is the site's and is shown as it is.
 keeps the status bar icons readable: dark on the site's light theme, light on
 its dark one.
 
+## Push notifications
+
+Firebase Cloud Messaging on both platforms (`@capacitor-firebase/messaging`).
+The app asks for nothing at launch: the website asks for permission when it
+makes sense and sends the token to the backend; tapping a notification opens
+its `data.url` in the app. Setup, the website's part and the backend's are in
+[docs/push.md](docs/push.md). Builds without the Firebase files work, with
+push off.
+
 ## Permissions
 
 Asked for only when needed, never at launch:
@@ -141,6 +150,7 @@ Asked for only when needed, never at launch:
 | Camera | "Take a photo" in a file upload | the same, from the system's upload menu |
 | Photos | none needed (system picker) | when choosing a photo to upload |
 | Location | when a page asks for it | when a page asks for it |
+| Notifications | when the website asks (Android 13+) | when the website asks |
 
 The permission texts are in English, Arabic and Sorani (`InfoPlist.strings`).
 On Android every upload that takes images offers "Take a photo / Choose a

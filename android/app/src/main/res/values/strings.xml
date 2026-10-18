@@ -7,4 +7,6 @@
     <string name="no_app_for_link">There\'s no app on this phone that can open this link.</string>
     <string name="upload_take_photo">Take a photo</string>
     <string name="upload_choose_file">Choose a file</string>
+    <string name="notification_channel_id" translatable="false">booking_updates</string>
+    <string name="notification_channel_name">Booking updates</string>
 </resources>
