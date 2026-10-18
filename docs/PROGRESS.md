@@ -67,8 +67,8 @@ picking the work up starts here. Update it with every step.
 | 2 | Icons and native splash (`npm run assets`), `.gitattributes` | done | `64c4c75` |
 | 3 | Navigation: what opens in the app, what goes to the phone; iOS bridge limited to the site | done | `1784a45` |
 | 4 | `bookingbye://auth` sign-in return; App Links / Universal Links | done | `ba326ba` |
-| 5 | File uploads with camera, location, permission texts | **in progress** | |
-| 6 | Offline screen; status bar following the site's dark mode | to do | |
+| 5 | File uploads with camera, location, permission texts | done | see git log |
+| 6 | Offline screen; status bar following the site's dark mode | **next** | |
 | 7 | Push notifications (FCM) | to do | |
 | 8 | CI (Codemagic + GitHub Actions), signing, store checklist | to do | |
 
@@ -79,7 +79,7 @@ picking the work up starts here. Update it with every step.
 3. `Navigation.java` / `Navigation.swift` (same rules; README table). appHosts, paymentHosts (12 gateway domains from the backend's gateways), payment flow judged from the last page let through, form POSTs stay in the app, new windows via `ShellChromeClient.onCreateWindow` (Android) / `targetFrame == nil` (iOS), intent:// opened like Chrome, a no-app message in three languages.
 4. `IncomingLinks.java` / `IncomingLinks.swift`. Token accepted only during an app-started sign-in (Android: Browser activity opened within 15 min, stored in SharedPreferences; iOS: the SFSafariViewController is still presented). Manifest: scheme filter + autoVerify App Links with `uri-relative-filter-group` exclusions; `keptInBrowser` in config for Android < 15. iOS: `CFBundleURLTypes`, `App.entitlements` (applinks + webcredentials), `CODE_SIGN_ENTITLEMENTS`.
 
-### Step 5: file uploads, camera, location (in progress)
+### Step 5: file uploads, camera, location (done)
 
 - Android manifest: `CAMERA`, `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION`;
   `uses-feature` camera and location with `required="false"`.
@@ -93,6 +93,8 @@ picking the work up starts here. Update it with every step.
   `NSLocationWhenInUseUsageDescription`, in English, and translated in
   `en/ar/ckb.lproj/InfoPlist.strings` (variant group via `xcode-add-localized.py`).
   iOS asks for location twice (system, then the page); WebKit has no API to skip the second.
+- Done as described. The visa uploader accepts image/jpeg, image/png and
+  application/pdf (frontend `DEFAULT_ACCEPTED`), so a camera photo (JPEG) fits.
 
 ### Step 6: offline screen, status bar (to do)
 

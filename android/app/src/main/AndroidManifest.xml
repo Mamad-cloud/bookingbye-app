@@ -84,6 +84,16 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Photographing documents for an upload (visa documents, a profile
+         picture); asked for only when "Take a photo" is chosen. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Location for the website's maps; asked for only when a page asks. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Neither is needed to install the app. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+
     <!-- Lets IncomingLinks find a browser by name (Android 11+ hides other
          apps otherwise). -->
     <queries>

@@ -2,4 +2,6 @@
 <!-- Central Kurdish (Sorani). -->
 <resources>
     <string name="no_app_for_link">هیچ ئەپێک لەسەر ئەم مۆبایلە نییە کە بتوانێت ئەم بەستەرە بکاتەوە.</string>
+    <string name="upload_take_photo">وێنەیەک بگرە</string>
+    <string name="upload_choose_file">فایلێک هەڵبژێرە</string>
 </resources>

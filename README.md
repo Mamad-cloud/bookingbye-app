@@ -119,6 +119,20 @@ Then check:
 - iOS: a bookingbye.com link tapped in Notes opens the app. Apple caches the
   file through its CDN, so a change can take a day to arrive.
 
+## Permissions
+
+Asked for only when needed, never at launch:
+
+| | Android | iOS |
+|---|---|---|
+| Camera | "Take a photo" in a file upload | the same, from the system's upload menu |
+| Photos | none needed (system picker) | when choosing a photo to upload |
+| Location | when a page asks for it | when a page asks for it |
+
+The permission texts are in English, Arabic and Sorani (`InfoPlist.strings`).
+On Android every upload that takes images offers "Take a photo / Choose a
+file"; Capacitor alone would only offer the camera to inputs with `capture`.
+
 ## Icons and splash
 
 Every icon and splash image is drawn from `resources/icon-source.png`, the

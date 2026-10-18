@@ -1,0 +1,4 @@
+/* The permission texts iOS shows (Info.plist), in the phone's language. */
+"NSCameraUsageDescription" = "BookingBye uses the camera so you can photograph documents, such as a passport for a visa application, and upload them with your booking.";
+"NSPhotoLibraryUsageDescription" = "BookingBye opens your photos so you can choose documents, such as a passport scan, to upload with your booking.";
+"NSLocationWhenInUseUsageDescription" = "BookingBye uses your location to show hotels and places near you on the map.";

@@ -1,0 +1,4 @@
+/* The permission texts iOS shows (Info.plist), in the phone's language. */
+"NSCameraUsageDescription" = "يستخدم BookingBye الكاميرا لتتمكن من تصوير مستنداتك، مثل جواز السفر لطلب التأشيرة، ورفعها مع حجزك.";
+"NSPhotoLibraryUsageDescription" = "يفتح BookingBye صورك لتختار منها مستندات، مثل صورة جواز السفر، لرفعها مع حجزك.";
+"NSLocationWhenInUseUsageDescription" = "يستخدم BookingBye موقعك ليعرض على الخريطة الفنادق والأماكن القريبة منك.";

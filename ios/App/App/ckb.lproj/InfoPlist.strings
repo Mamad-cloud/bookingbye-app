@@ -1,0 +1,4 @@
+/* The permission texts iOS shows (Info.plist), in the phone's language. Central Kurdish (Sorani). */
+"NSCameraUsageDescription" = "BookingBye کامێرا بەکاردەهێنێت بۆ ئەوەی بتوانیت وێنەی بەڵگەنامەکانت بگریت، وەک پاسپۆرت بۆ داواکاری ڤیزا، و لەگەڵ حجزەکەتدا باریان بکەیت.";
+"NSPhotoLibraryUsageDescription" = "BookingBye وێنەکانت دەکاتەوە بۆ ئەوەی بەڵگەنامەیەک هەڵبژێریت، وەک وێنەی پاسپۆرت، و لەگەڵ حجزەکەتدا باری بکەیت.";
+"NSLocationWhenInUseUsageDescription" = "BookingBye شوێنەکەت بەکاردەهێنێت بۆ پیشاندانی ئەو هوتێل و شوێنانەی نزیکی تۆن لەسەر نەخشە.";

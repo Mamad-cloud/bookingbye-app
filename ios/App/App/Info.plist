@@ -35,6 +35,12 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>BookingBye uses the camera so you can photograph documents, such as a passport for a visa application, and upload them with your booking.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BookingBye opens your photos so you can choose documents, such as a passport scan, to upload with your booking.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>BookingBye uses your location to show hotels and places near you on the map.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
