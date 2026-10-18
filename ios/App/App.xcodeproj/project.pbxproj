@@ -20,6 +20,7 @@
 		244A78B89F3B7293D635D824 /* Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD4E381244A78B89F3B7293 /* Navigation.swift */; };
 		B1C922E4D3C93207503F9767 /* AppShellPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CC1451B1C922E4D3C93207 /* AppShellPlugin.swift */; };
 		60EC8D72AACA7D0B13237AE6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F0A91D7F2761031F796F562D /* Localizable.strings */; };
+		CB0DA2125940D456CFD6928C /* IncomingLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 858FE165CB0DA2125940D456 /* IncomingLinks.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,8 @@
 		1C5943FD87A36D6D645B73C0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		F7AB746DDFE75437DDDA064D /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EA2D9C08C7E2FF1B61BEF910 /* ckb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ckb; path = ckb.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E17A11ED00000000000000E1 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
+		858FE165CB0DA2125940D456 /* IncomingLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingLinks.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +77,8 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				858FE165CB0DA2125940D456 /* IncomingLinks.swift */,
+				E17A11ED00000000000000E1 /* App.entitlements */,
 				F0A91D7F2761031F796F562D /* Localizable.strings */,
 				06CC1451B1C922E4D3C93207 /* AppShellPlugin.swift */,
 				BDD4E381244A78B89F3B7293 /* Navigation.swift */,
@@ -175,6 +180,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB0DA2125940D456CFD6928C /* IncomingLinks.swift in Sources */,
 				B1C922E4D3C93207503F9767 /* AppShellPlugin.swift in Sources */,
 				244A78B89F3B7293D635D824 /* Navigation.swift in Sources */,
 				9B8F74AADDF43BD6F6CBE891 /* ShellViewController.swift in Sources */,
@@ -329,6 +335,7 @@
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = App/Info.plist;
@@ -351,6 +358,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = App/Info.plist;

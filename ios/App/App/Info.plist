@@ -22,6 +22,19 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<!-- The end of Google or Facebook sign-in in Safari:
+			     bookingbye://auth?token=... (IncomingLinks.swift). -->
+			<key>CFBundleURLName</key>
+			<string>com.bookingbye.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bookingbye</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

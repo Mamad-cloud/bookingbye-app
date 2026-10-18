@@ -86,6 +86,39 @@ checkout sends the customer to the browser for it.
 Only https://bookingbye.com can call the native plugins. Payment and bank
 pages open in the app but get no answer from it.
 
+## Sign-in and links into the app
+
+**Google and Facebook sign-in** run in the phone's browser, because Google
+refuses embedded webviews. The website opens
+`https://bookingbye.com/app-auth?provider=…` with the Browser plugin. When
+sign-in is done, the browser opens `bookingbye://auth?token=…`; the app closes
+the browser and loads `/oauth/success?token=…` in the webview, which signs it
+in. The app only accepts that token while a sign-in it started is under way
+(the Safari sheet is still open on iOS; the browser was opened within the
+last 15 minutes on Android), so another app or website cannot sign the
+customer in as someone else.
+
+**Links to bookingbye.com** open in the app (Android App Links, iOS Universal
+Links), except `/api/*`, `/_next/*`, `/oauth/*`, `/app-auth*`, `/payment-*`
+and `/pay-done*`, which stay in the browser. For that, the website has to
+vouch for the app. Set these on the website's server once the values exist:
+
+| Setting | Value | Where it comes from |
+|---|---|---|
+| `APP_ANDROID_PACKAGE` | `com.bookingbye.app` | |
+| `APP_ANDROID_SHA256_FINGERPRINTS` | `AA:BB:…,CC:DD:…` | Play Console › Test and release › App integrity › App signing: the SHA-256 of the *app signing key* and of the *upload key*, comma-separated |
+| `APP_IOS_APP_IDS` | `TEAMID.com.bookingbye.app` | Apple Developer › Membership details › Team ID |
+
+Then check:
+
+- https://bookingbye.com/.well-known/assetlinks.json and
+  https://bookingbye.com/.well-known/apple-app-site-association return JSON
+  naming the app, with no redirect;
+- Android: `adb shell pm get-app-links com.bookingbye.app` shows
+  `bookingbye.com: verified` (re-run with `pm verify-app-links --re-verify`);
+- iOS: a bookingbye.com link tapped in Notes opens the app. Apple caches the
+  file through its CDN, so a change can take a day to arrive.
+
 ## Icons and splash
 
 Every icon and splash image is drawn from `resources/icon-source.png`, the

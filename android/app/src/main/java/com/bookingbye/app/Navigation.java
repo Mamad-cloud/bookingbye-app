@@ -177,12 +177,12 @@ final class Navigation {
         return "https".equals(scheme) || "http".equals(scheme);
     }
 
-    private static String https(Uri url) {
+    static String https(Uri url) {
         return url.buildUpon().scheme("https").build().toString();
     }
 
     /** True when `host` is one of `hosts` or a subdomain of one. */
-    private static boolean matches(String host, List<String> hosts) {
+    static boolean matches(String host, List<String> hosts) {
         if (host == null) return false;
         host = lower(host);
         for (String candidate : hosts) {
@@ -191,13 +191,13 @@ final class Navigation {
         return false;
     }
 
-    private static List<String> hosts(String[] values) {
+    static List<String> hosts(String[] values) {
         List<String> list = new ArrayList<>();
         for (String value : values) list.add(lower(value.trim()));
         return list;
     }
 
-    private static String lower(String value) {
+    static String lower(String value) {
         return value == null ? null : value.toLowerCase(Locale.ROOT);
     }
 }

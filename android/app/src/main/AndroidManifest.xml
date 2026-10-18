@@ -22,6 +22,51 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- The end of Google or Facebook sign-in in the phone's browser:
+                 bookingbye://auth?token=... (IncomingLinks). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bookingbye" android:host="auth" />
+            </intent-filter>
+
+            <!-- App Links: bookingbye.com links open in the app, once the site's
+                 /.well-known/assetlinks.json names this app's signing key.
+                 The paths below stay in the browser, as the website's own
+                 KEPT_IN_BROWSER list says and keptInBrowser in
+                 capacitor.config.js repeats. Android 15 reads the exclusions
+                 here; on older versions IncomingLinks sends those paths back
+                 to the browser. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="bookingbye.com" />
+                <uri-relative-filter-group android:allow="false">
+                    <data android:pathPrefix="/api/" />
+                </uri-relative-filter-group>
+                <uri-relative-filter-group android:allow="false">
+                    <data android:pathPrefix="/_next/" />
+                </uri-relative-filter-group>
+                <uri-relative-filter-group android:allow="false">
+                    <data android:pathPrefix="/oauth/" />
+                </uri-relative-filter-group>
+                <uri-relative-filter-group android:allow="false">
+                    <data android:pathPrefix="/app-auth" />
+                </uri-relative-filter-group>
+                <uri-relative-filter-group android:allow="false">
+                    <data android:pathPrefix="/payment-" />
+                </uri-relative-filter-group>
+                <uri-relative-filter-group android:allow="false">
+                    <data android:pathPrefix="/pay-done" />
+                </uri-relative-filter-group>
+                <uri-relative-filter-group android:allow="true">
+                    <data android:pathPrefix="/" />
+                </uri-relative-filter-group>
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -38,4 +83,14 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Lets IncomingLinks find a browser by name (Android 11+ hides other
+         apps otherwise). -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
 </manifest>

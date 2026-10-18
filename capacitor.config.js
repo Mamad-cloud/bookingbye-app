@@ -70,6 +70,14 @@ const config = {
         "stripe.com",
         "stripe.network",
       ],
+
+      // bookingbye.com paths that a link must never open in the app, as the
+      // website's /.well-known files say (api/well-known/[file]/route.ts,
+      // KEPT_IN_BROWSER): payment returns belong to the browser that holds
+      // that payment, sign-in finishes in the phone's browser, and the rest
+      // are never pages. Android's intent filter (AndroidManifest.xml) lists
+      // the same paths; this list catches the phones too old to read it.
+      keptInBrowser: ["/api/", "/_next/", "/oauth/", "/app-auth", "/payment-", "/pay-done"],
     },
   },
 };

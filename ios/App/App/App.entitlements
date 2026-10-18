@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Universal Links (bookingbye.com links open the app) and saved
+	     bookingbye.com passwords, once the site's
+	     /.well-known/apple-app-site-association names this app. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:bookingbye.com</string>
+		<string>webcredentials:bookingbye.com</string>
+	</array>
+</dict>
+</plist>
