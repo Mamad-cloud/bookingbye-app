@@ -205,8 +205,8 @@ Information › Notes**, list what the app adds natively:
 
 > BookingBye is our booking service, built for the app with native features:
 > push notifications for booking updates (tapping one opens that booking);
-> bookingbye.com links open in the app (Universal Links); Google and Facebook
-> sign-in run in the system browser and return to the app; tickets and
+> bookingbye.com links open in the app (Universal Links); Google sign-in
+> runs in the system browser and returns to the app; tickets and
 > vouchers are saved and shared through the iOS share sheet; visa documents
 > can be photographed with the camera; a native offline screen when there is
 > no connection; payments, phone numbers, email and bank apps open in the
@@ -214,9 +214,12 @@ Information › Notes**, list what the app adds natively:
 > Test account: <email> / <password>, with a past booking to look at.
 
 - [ ] A **demo account** with at least one booking (Apple and Play both ask).
+- [ ] Mention Facebook sign-in in the notes only once it works end to end
+      (on 2026-10-20 `/api/auth/facebook` returned 405 and the site's
+      Facebook buttons were disabled).
 - [ ] Before each submission, on a real phone of each kind:
   - [ ] first launch: navy splash, then the site, with no white flash;
-  - [ ] Google and Facebook sign-in come back signed in;
+  - [ ] Google sign-in comes back signed in (and Facebook, once its buttons are turned on);
   - [ ] a test payment (with 3-D Secure) stays in the app and ends on `/payment-success`;
   - [ ] a ticket PDF opens the share sheet;
   - [ ] a visa upload offers the camera; a photo uploads;

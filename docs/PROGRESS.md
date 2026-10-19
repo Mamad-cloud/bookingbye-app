@@ -215,3 +215,18 @@ Collected for the website owner; nothing here is done in this repo.
    `allow_ad_personalization_signals: false` when `isInApp()`, so Apple does
    not count it as tracking (no App Tracking Transparency prompt needed).
 9. **Public account-deletion page** for Google Play (e.g. /delete-account).
+
+**Status 2026-10-20** (audit of the frontend and api repos after their work
+on the items above): deployed; `/app-auth`, `/.well-known/*`, `/privacy`,
+`/delete-account` and the API's `/v2/devices`, `/v2/me`,
+`/v2/account-deletion-requests` are live, and the frontend and backend
+request shapes match. Open, in fix prompts given to the owner (backend
+first, then frontend): privacy page still shows 14 `[TODO:]` placeholders;
+Facebook sign-in broken (`/api/auth/facebook` 405, backend on Graph v12);
+push offer never shown after Google sign-in in the app (oauth/success fires
+`auth:changed` before PushManager listens); backend deletes tokens on any
+FCM 400; `visaDocumentsRequested` never called; payment-failed push only on
+browser return; push tied to email for some products; files deleted inside
+the deletion transaction; TrustProxies unset behind Cloudflare;
+`.env.example` lacks the Firebase/PUSH keys; production must not use the
+`sync` queue and needs `JWT_SECRET` of 32+ characters.
