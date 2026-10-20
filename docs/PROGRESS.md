@@ -216,6 +216,21 @@ Collected for the website owner; nothing here is done in this repo.
    not count it as tracking (no App Tracking Transparency prompt needed).
 9. **Public account-deletion page** for Google Play (e.g. /delete-account).
 
+**Status 2026-10-20, second check** (after the fix prompts were deployed):
+the earlier findings are fixed in both repos (api: 76 feature + 195 unit
+tests pass; frontend: no TypeScript errors in the changed files). Still open:
+production Facebook env on the website (`FACEBOOK_CLIENT_ID` is a
+placeholder, `FACEBOOK_REDIRECT_URI` lacks `/v2`); api trusts
+`X-Forwarded-Host` from Cloudflare with TrustHosts off (deletion link host
+spoofable on a sync queue); a push dispatch error inside a commit escapes to
+the caller (IPN 500s); `PUSH_UNPAID_AFTER_MINUTES` missing from
+`.env.example`; phpunit.xml lets Jetstream tests migrate the `.env` database;
+first sync after deploy may send late duplicate pushes; privacy page names
+the wrong payment providers and omits WhatsApp; frontend: push offer pops
+on a Google re-sign-in, dot-segment paths in the sign-in return, no cap on
+`app_version`; a Google client secret sits in the frontend's `.env.example`
+(private repo; rotate it); `/oauth/success` login CSRF (state never checked).
+
 **Status 2026-10-20** (audit of the frontend and api repos after their work
 on the items above): deployed; `/app-auth`, `/.well-known/*`, `/privacy`,
 `/delete-account` and the API's `/v2/devices`, `/v2/me`,

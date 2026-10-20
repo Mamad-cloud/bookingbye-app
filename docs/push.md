@@ -46,12 +46,15 @@ async function enablePush(): Promise<void> {
   }
   if (receive !== "granted") return;
   const { token } = await push.getToken();
-  await api.post("/v2/devices", { token, platform: platform(), app_version: appVersion(), locale: currentLocale() });
+  const version = appVersion();  // null when the user agent has none
+  await api.post("/v2/devices", { token, platform: platform(), locale: currentLocale(), ...(version ? { app_version: version } : {}) });
 }
 ```
 
 - `platform()`: `window.Capacitor.getPlatform()` gives `"ios"` or `"android"`.
-- `appVersion()`: the number after `BookingByeApp/` in the user agent.
+- `appVersion()`: the number after `BookingByeApp/` in the user agent, at
+  most 32 characters (the backend's limit); leave it out when there is none.
+- `token`: up to 512 characters (the backend's limit).
 - **Token changes.** Firebase can replace a token. Listen once per page:
   `push.addListener("tokenReceived", ({ token }) => post it again)`.
 - **Sign-out.** `DELETE /v2/devices/{token}`, then `push.deleteToken()`.
@@ -73,11 +76,11 @@ Table `device_tokens`:
 | column | |
 |---|---|
 | `id` | |
-| `token` | string, unique: one row per installed app |
+| `token` | string up to 512, case-sensitive (utf8mb4_bin), unique: one row per installed app |
 | `user_id` | nullable, the customer (`auth:api`) |
 | `agency_id` | nullable, the agency user (`agency` guard) |
 | `platform` | `ios` or `android` |
-| `app_version` | e.g. `1.0.0` |
+| `app_version` | nullable, up to 32, e.g. `1.0.0` |
 | `locale` | `en`, `ar` or `ckb`: the language to write that phone's notifications in |
 | `last_seen_at`, timestamps | |
 
