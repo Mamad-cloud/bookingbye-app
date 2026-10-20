@@ -36,6 +36,9 @@ final class IncomingLinks {
      */
     private static final long SIGN_IN_WINDOW_MS = 15 * 60 * 1000;
 
+    /** The query parameter that carries the website's sign-in nonce, passed on unchanged. */
+    static final String SIGN_IN_NONCE = "nonce";
+
     private static final String PREFS = "app_shell";
     private static final String SIGN_IN_STARTED_AT = "sign_in_started_at";
 
@@ -70,14 +73,24 @@ final class IncomingLinks {
             return true;
         }
         if (("https".equals(scheme) || "http".equals(scheme)) && Navigation.matches(link.getHost(), appHosts)) {
-            if (isKeptInBrowser(link.getPath())) {
-                openInBrowser(link);
+            // "//oauth/success" is not "/oauth/success" to the intent filter,
+            // but the website redirects one to the other: judge the path as
+            // the website will serve it.
+            Uri page = link.buildUpon().path(collapseSlashes(link.getPath())).build();
+            if (isKeptInBrowser(page.getPath())) {
+                openInBrowser(page);
             } else {
-                webView.loadUrl(Navigation.https(link));
+                webView.loadUrl(Navigation.https(page));
             }
             return true;
         }
         return false;
+    }
+
+    /** "/a//b" as "/a/b"; null and "" as "/". */
+    private static String collapseSlashes(String path) {
+        if (path == null || path.isEmpty()) return "/";
+        return path.replaceAll("/{2,}", "/");
     }
 
     private void finishSignIn(WebView webView, Uri link, String serverUrl) {
@@ -92,8 +105,13 @@ final class IncomingLinks {
         if (startedAt == 0 || elapsed < 0 || elapsed > SIGN_IN_WINDOW_MS) return;
         prefs().edit().remove(SIGN_IN_STARTED_AT).apply();
 
-        Uri success = Uri.parse(serverUrl).buildUpon().path("/oauth/success").clearQuery().appendQueryParameter("token", token).build();
-        webView.loadUrl(success.toString());
+        Uri.Builder success = Uri.parse(serverUrl).buildUpon().path("/oauth/success").clearQuery().appendQueryParameter("token", token);
+        // The website's one-time value for this sign-in, which it made in the
+        // webview when the sign-in started and checks here, so that only a
+        // sign-in the app itself brings back can sign the webview in.
+        String nonce = link.getQueryParameter(SIGN_IN_NONCE);
+        if (nonce != null && !nonce.isEmpty()) success.appendQueryParameter(SIGN_IN_NONCE, nonce);
+        webView.loadUrl(success.build().toString());
     }
 
     private boolean isKeptInBrowser(String path) {

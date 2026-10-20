@@ -119,7 +119,7 @@ pages open in the app but get no answer from it.
 
 ## Sign-in and links into the app
 
-**Google and Facebook sign-in** run in the phone's browser, because Google
+**Google (and Facebook) sign-in** runs in the phone's browser, because Google
 refuses embedded webviews. The website opens
 `https://bookingbye.com/app-auth?provider=…` with the Browser plugin. When
 sign-in is done, the browser opens `bookingbye://auth?token=…`; the app closes
@@ -127,7 +127,12 @@ the browser and loads `/oauth/success?token=…` in the webview, which signs it
 in. The app only accepts that token while a sign-in it started is under way
 (the Safari sheet is still open on iOS; the browser was opened within the
 last 15 minutes on Android), so another app or website cannot sign the
-customer in as someone else.
+customer in as someone else. It also passes on the website's one-time
+`nonce` (`bookingbye://auth?token=…&nonce=…` → `/oauth/success?token=…&nonce=…`),
+which the webview made when the sign-in started and checks at the end.
+
+**Google sign-in** is the one on offer; Facebook sign-in is turned off on the
+website for now. Turning it back on needs no app change.
 
 **Links to bookingbye.com** open in the app (Android App Links, iOS Universal
 Links), except `/api/*`, `/_next/*`, `/oauth/*`, `/app-auth*`, `/payment-*`

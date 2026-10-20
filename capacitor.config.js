@@ -92,7 +92,9 @@ const config = {
       // KEPT_IN_BROWSER): payment returns belong to the browser that holds
       // that payment, sign-in finishes in the phone's browser, and the rest
       // are never pages. Android's intent filter (AndroidManifest.xml) lists
-      // the same paths; this list catches the phones too old to read it.
+      // the same paths; this list catches the phones too old to read it, and,
+      // on both platforms, variants that slip past the filters ("//oauth/...",
+      // which the website redirects to "/oauth/...").
       keptInBrowser: ["/api/", "/_next/", "/oauth/", "/app-auth", "/payment-", "/pay-done"],
     },
   },
