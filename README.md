@@ -29,7 +29,8 @@ resources/            icon artwork and store listing images
 scripts/              version sync, icon and splash generator, Xcode project helpers
 docs/PROGRESS.md      build record: steps, decisions, what is left
 docs/push.md          push notifications: Firebase, website and backend
-docs/store-checklist.md  everything needed to publish
+docs/LAUNCH.md        launch runbook: every account, setting and env variable, in order
+docs/store-checklist.md  store answers, listings, review notes, device tests
 codemagic.yaml, .github/workflows/  store builds in the cloud
 ```
 

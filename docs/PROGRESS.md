@@ -216,6 +216,30 @@ Collected for the website owner; nothing here is done in this repo.
    not count it as tracking (no App Tracking Transparency prompt needed).
 9. **Public account-deletion page** for Google Play (e.g. /delete-account).
 
+**Status 2026-10-21, third check**: earlier findings fixed (api: full
+suite 314 tests pass; frontend: OAuth state/CSRF in the browser, push offer,
+signInReturn, appVersion, privacy). Facebook sign-in turned off by the owner.
+App: `64a5b0b` collapses repeated slashes before the kept-in-browser check
+(`//oauth/success` got past the app-link exclusions and the site 308s it to
+`/oauth/success`) and forwards `nonce` from `bookingbye://auth` to
+`/oauth/success`. Open:
+- frontend (high): `/oauth/success` skips the state check whenever
+  `isInApp()`, so any page the webview loads there (a crafted link, or
+  `/login?redirect=/oauth/success?token=…`) signs the app in as the attacker.
+  Fix: in-app nonce (made in the webview by `startAppSignIn`, carried through
+  app-auth and the browser, returned as `bookingbye://auth?token&nonce`,
+  checked and consumed at `/oauth/success`); `sameSitePath` refuses `/oauth/`
+  and `/app-auth`.
+- secrets to rotate: Google client secret and Cloudinary key/secret in the
+  frontend's `.env.example`; GitHub token in its local `deploy.txt`; supplier
+  passwords in the api's `config/site.php` and `TourVisioService.php`.
+- api: `ResumePaymentController.php:154` sends pay-link results to the API
+  host (unknown config keys; use `AppUrl::frontend()`); `env()` in app code
+  (EasyBooking, TourVisio, FlightAggregator, Paximum, HomeController,
+  BlogPost…) returns defaults/empty under `config:cache`; `filesystems.php`
+  upload URL lacks a slash.
+- Launch runbook with every setting and variable: `docs/LAUNCH.md`.
+
 **Status 2026-10-20, second check** (after the fix prompts were deployed):
 the earlier findings are fixed in both repos (api: 76 feature + 195 unit
 tests pass; frontend: no TypeScript errors in the changed files). Still open:
