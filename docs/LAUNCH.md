@@ -409,6 +409,46 @@ and the demo account. Short version:
 
 ---
 
+## Appendix – iOS first, by hand on a Mac (no CI)
+
+For building and uploading from a (cloud) Mac with Xcode instead of
+Codemagic/GitHub Actions. Needs Xcode **26** or later (App Store uploads must
+use the iOS 26 SDK), Node 24 and git on the Mac.
+
+1. **Get the code there**: push this repo to a private Git host (GitHub:
+   create an empty private repo, then on the PC
+   `git remote add origin <url>` and `git push -u origin main`), and clone it
+   on the Mac.
+2. **Prepare** (on the Mac, in the repo):
+   ```bash
+   npm ci
+   npx cap sync ios          # also creates ios/App/CapApp-SPM/symlinks
+   node scripts/sync-version.js
+   open ios/App/App.xcodeproj
+   ```
+   Wait for Xcode to finish "Resolving Package Graph" (Firebase is large).
+3. **Simulator** (no paid account needed): pick an iPhone simulator at the
+   top, Product › Run. Check the splash, the site, links, offline page
+   (Simulator › Features › Network Link Conditioner, or switch the Mac's
+   Wi-Fi off), Google sign-in.
+4. **Signing** (after Phase 2): Xcode › Settings › Accounts › add the Apple ID
+   of the developer account. Target **App** › Signing & Capabilities: tick
+   *Automatically manage signing*, Team = the company. Push Notifications
+   and Associated Domains appear from `App.entitlements`.
+5. **Firebase** (after Phase 3): put `GoogleService-Info.plist` in
+   `ios/App/App/` (not committed; the build phase copies it in).
+6. **Build number**: each upload needs a higher one. On the Mac:
+   `APP_BUILD_NUMBER=$(node scripts/build-number.js) node scripts/sync-version.js`.
+7. **Upload**: device menu › *Any iOS Device (arm64)* › Product › Archive ›
+   Organizer › Distribute App › **App Store Connect** › Upload (automatic
+   signing). After processing it appears in App Store Connect › TestFlight;
+   install it on your iPhone with the TestFlight app (a cloud Mac cannot
+   reach a USB iPhone).
+8. **Screenshots**: run the *iPhone 17 Pro Max* (6.9") simulator and press
+   ⌘S: the saved images are the size App Store Connect wants.
+9. Then Phase 9 step 4 (tests), set `APP_IOS_APP_IDS` on the website, and
+   Phase 10 (App Store part).
+
 ## Appendix – turning Facebook sign-in back on
 
 1. developers.facebook.com › the app › Facebook Login › Settings › Valid OAuth
