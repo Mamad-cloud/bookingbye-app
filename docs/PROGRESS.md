@@ -216,6 +216,13 @@ Collected for the website owner; nothing here is done in this repo.
    not count it as tracking (no App Tracking Transparency prompt needed).
 9. **Public account-deletion page** for Google Play (e.g. /delete-account).
 
+**Apple 2026-10-21**: individual membership, Team ID `XZS779BUTF`, App Store
+Connect app "BookingBye" (name available). Plan: build and test on this
+account; get a D-U-N-S number and ask Apple to convert the membership to an
+organization before submitting (guideline 5.1.1(ix), air travel); a
+conversion keeps the team and its apps. iOS first, built by hand on a cloud
+Mac (LAUNCH.md appendix).
+
 **Live 2026-10-21**: the website's nonce code is deployed (`bb_app_sign_in_nonce`
 in the live scripts); API answering. Secrets: the owner confirmed the
 supplier/payment credentials are IP-restricted to the server, so no rotation;

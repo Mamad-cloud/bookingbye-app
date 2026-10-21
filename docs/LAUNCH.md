@@ -10,7 +10,10 @@ Written 2026-10-21 from the code of all three repos (app, frontend, api).
 Facebook sign-in is turned off for now and left out; turning it back on is
 in the appendix.
 
-Placeholders: `<TEAMID>` Apple Team ID, `<KEYID>` a key's ID, and so on.
+Known values: Apple Team ID **`XZS779BUTF`** (individual membership as of
+2026-10-21; App Store Connect app "BookingBye" created).
+
+Placeholders: `<TEAMID>` Apple Team ID (`XZS779BUTF`), `<KEYID>` a key's ID, and so on.
 Never commit any value marked **secret**.
 
 ---
@@ -284,7 +287,7 @@ are baked in at build time; the others are read when the server starts.
 | `GOOGLE_REDIRECT_URI` | `https://api.bookingbye.com/api/v2/auth/google/callback` | start |
 | `APP_ANDROID_PACKAGE` | `com.bookingbye.app` | start |
 | `APP_ANDROID_SHA256_FINGERPRINTS` | set in Phase 9 | start |
-| `APP_IOS_APP_IDS` | `<TEAMID>.com.bookingbye.app` | start |
+| `APP_IOS_APP_IDS` | `XZS779BUTF.com.bookingbye.app` | start |
 
 Remove if present: `GOOGLE_CLIENT_SECRET`, `CLOUDINARY_*`,
 `NEXT_PUBLIC_AUTH_BASE_URL` (unused). Leave `FACEBOOK_*` unset while Facebook
