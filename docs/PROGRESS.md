@@ -216,6 +216,9 @@ Collected for the website owner; nothing here is done in this repo.
    not count it as tracking (no App Tracking Transparency prompt needed).
 9. **Public account-deletion page** for Google Play (e.g. /delete-account).
 
+**Live 2026-10-21**: the website's nonce code is deployed (`bb_app_sign_in_nonce`
+in the live scripts); API answering. Next: LAUNCH.md from Phase 1.
+
 **Status 2026-10-21, final check**: code complete in all three repos.
 frontend `eeee8c2` (in-app nonce, sameSitePath refuses /oauth and /app-auth,
 secrets out of .env.example) verified against every attack path; api
