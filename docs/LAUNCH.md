@@ -27,23 +27,13 @@ The code is done in all three repos (checked 2026-10-21; see
    signing in with Google inside the app must work, and
    `https://bookingbye.com//oauth/success?token=x` opened in the app must
    not sign anyone in.
-3. **Rotate leaked secrets** (all were found in files, not public, but treat
-   them as known):
-   - Google OAuth client secret (it was in the frontend's `.env.example`):
-     Google Cloud Console › APIs & Services › Credentials › the OAuth client ›
-     *Reset secret*, then put the new one in the API's `GOOGLE_CLIENT_SECRET`
-     (the website does not need it; delete it from its `.env.example`).
-   - Cloudinary API key and secret (frontend `.env.example`; unused by the
-     site): rotate in Cloudinary, remove from the file.
-   - GitHub personal access token in the frontend's local `deploy.txt`:
-     GitHub › Settings › Developer settings › Tokens › revoke; use an SSH
-     deploy key on the server instead.
-   - Supplier passwords that were committed in the API's `config/site.php`
-     (Bilet Dükkanı, Travelopro) and `TourVisioService.php` (TourVisio): now
-     read from env; ask the suppliers for new ones and put those in `.env`
-     (they remain in git history).
-   - Delete the frontend's local `deploy.txt` once the GitHub token in it is
-     revoked.
+3. **Secrets found in the repos.** The owner confirmed (2026-10-21) that the
+   supplier and payment credentials only work from the server's IP, so the
+   copies found in the code need no rotation. The one exception: the Google
+   OAuth client secret is not IP-bound, so if the `GOCSPX-…` value that was
+   in the frontend's `.env.example` is the one the API uses in production,
+   reset it (Google Cloud Console › Credentials › the OAuth client › *Reset
+   secret*) and put the new one in the API's `GOOGLE_CLIENT_SECRET`.
 
 ---
 
@@ -210,8 +200,7 @@ sudo chmod 600 /etc/bookingbye/firebase-service-account.json
 and the two before it). They used to be written in `config/site.php` /
 `TourVisioService.php`; now they come only from `.env`, with empty defaults.
 **Add them before deploying that version**, or those suppliers stop
-working. Use the values from the old `config/site.php` in git history, or
-better the new ones after rotating them with the suppliers (Phase 0.3):
+working. Use the production values the server already has:
 
 | Variable | Value |
 |---|---|
