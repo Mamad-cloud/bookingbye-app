@@ -15,14 +15,18 @@ Never commit any value marked **secret**.
 
 ---
 
-## Phase 0 – Finish the code (before anything below)
+## Phase 0 – Deploy the finished code (before anything below)
 
-1. **Website**: the in-app sign-in nonce and the other open items in
-   [PROGRESS.md](PROGRESS.md) (status 2026-10-21). The app is ready for it
-   (it forwards `nonce` from `bookingbye://auth` to `/oauth/success`).
-2. **API**: the open items in the same place (pay-link redirect to the API
-   host, `env()` calls that break under `config:cache`, credentials in
-   `config/site.php`).
+The code is done in all three repos (checked 2026-10-21; see
+[PROGRESS.md](PROGRESS.md)). Make sure the latest commits are live:
+
+1. **API** (HEAD `71af722` or later): first add the supplier variables from
+   Phase 6.2 ("moved out of the code"), then deploy (Phase 6.3).
+2. **Website** (HEAD `eeee8c2` or later): `git pull && npm ci && npm run build
+   && pm2 restart bookingbynext_app --update-env`. Check that it is live:
+   signing in with Google inside the app must work, and
+   `https://bookingbye.com//oauth/success?token=x` opened in the app must
+   not sign anyone in.
 3. **Rotate leaked secrets** (all were found in files, not public, but treat
    them as known):
    - Google OAuth client secret (it was in the frontend's `.env.example`):
@@ -34,9 +38,12 @@ Never commit any value marked **secret**.
    - GitHub personal access token in the frontend's local `deploy.txt`:
      GitHub › Settings › Developer settings › Tokens › revoke; use an SSH
      deploy key on the server instead.
-   - Supplier passwords committed in the API's `config/site.php`
-     (Bilet Dükkanı, Travelopro) and the TourVisio default password in
-     `TourVisioService.php`: ask the suppliers for new ones, move them to env.
+   - Supplier passwords that were committed in the API's `config/site.php`
+     (Bilet Dükkanı, Travelopro) and `TourVisioService.php` (TourVisio): now
+     read from env; ask the suppliers for new ones and put those in `.env`
+     (they remain in git history).
+   - Delete the frontend's local `deploy.txt` once the GitHub token in it is
+     revoked.
 
 ---
 
@@ -198,6 +205,23 @@ sudo chmod 600 /etc/bookingbye/firebase-service-account.json
 | `LOG_LEVEL` | `warning` |
 | `NASS_ENV` | `prod` |
 | `QICARD_ENV` | `prod` |
+
+**Supplier credentials that moved out of the code** (API commit `71af722`
+and the two before it). They used to be written in `config/site.php` /
+`TourVisioService.php`; now they come only from `.env`, with empty defaults.
+**Add them before deploying that version**, or those suppliers stop
+working. Use the values from the old `config/site.php` in git history, or
+better the new ones after rotating them with the suppliers (Phase 0.3):
+
+| Variable | Value |
+|---|---|
+| `TRAVELOPRO_USER_ID`, `TRAVELOPRO_USER_PASSWORD`, `TRAVELOPRO_IP_ADDRESS` | **secret**: Travelopro account |
+| `TRAVELOPRO_ACCESS` | `Production` |
+| `BILETDUKKANI_USERNAME`, `BILETDUKKANI_PASSWORD` | **secret**: Bilet Dükkanı account |
+| `TOURVISIO_API_AGENT`, `TOURVISIO_API_USERNAME` | were `BOOKINGBYE` by default; set them explicitly |
+| `TOURVISIO_API_PASSWORD` | **secret** |
+| `EASYBOOKING_API_URL` | the production URL (the default is the **test** API) |
+| `EASYBOOKING_API_USERNAME`, `EASYBOOKING_API_PASSWORD` | **secret** |
 
 **Existing, keep as they are** (listed so nothing is forgotten; all
 **secret** unless a value is given):

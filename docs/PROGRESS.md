@@ -216,6 +216,21 @@ Collected for the website owner; nothing here is done in this repo.
    not count it as tracking (no App Tracking Transparency prompt needed).
 9. **Public account-deletion page** for Google Play (e.g. /delete-account).
 
+**Status 2026-10-21, final check**: code complete in all three repos.
+frontend `eeee8c2` (in-app nonce, sameSitePath refuses /oauth and /app-auth,
+secrets out of .env.example) verified against every attack path; api
+`71af722` (frontend URLs via AppUrl, no env() outside config, supplier
+credentials moved to env, upload URL) with 320 tests passing. Not yet live
+when checked: the website's nonce code (deployed JS still lacked
+`bb_app_sign_in_nonce`). To do by the owner: deploy both (API needs the
+supplier env keys first, LAUNCH.md 6.2), rotate the leaked secrets, then
+LAUNCH.md from Phase 1. Known, accepted for launch: legacy Stripe flow has
+hardcoded bookingbye.com URLs (Stripe is off); a pending in-app nonce can be
+used up by a crafted link (sign-in must be retried); on Android another app
+registering `bookingbye://` could receive the sign-in token from the browser
+(hardening later: return a one-time code exchanged by the webview instead
+of the token, or an App Link for the return).
+
 **Status 2026-10-21, third check**: earlier findings fixed (api: full
 suite 314 tests pass; frontend: OAuth state/CSRF in the browser, push offer,
 signInReturn, appVersion, privacy). Facebook sign-in turned off by the owner.
