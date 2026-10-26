@@ -30,6 +30,7 @@ scripts/              version sync, icon and splash generator, Xcode project hel
 docs/PROGRESS.md      build record: steps, decisions, what is left
 docs/push.md          push notifications: Firebase, website and backend
 docs/LAUNCH.md        launch runbook: every account, setting and env variable, in order
+docs/IOS-BUILD.md     building and uploading iOS by hand on a Mac (for whoever has the Mac)
 docs/store-checklist.md  store answers, listings, review notes, device tests
 codemagic.yaml, .github/workflows/  store builds in the cloud
 ```

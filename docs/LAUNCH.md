@@ -414,6 +414,8 @@ and the demo account. Short version:
 
 ## Appendix – iOS first, by hand on a Mac (no CI)
 
+Step-by-step for the person at the Mac, with commands: [IOS-BUILD.md](IOS-BUILD.md).
+
 For building and uploading from a (cloud) Mac with Xcode instead of
 Codemagic/GitHub Actions. Needs Xcode **26** or later (App Store uploads must
 use the iOS 26 SDK), Node 24 and git on the Mac.
